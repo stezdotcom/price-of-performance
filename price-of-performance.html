@@ -1,0 +1,2090 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Velocity Index · Price of Performance</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+/* ============================================================
+   PRICE OF PERFORMANCE — Discovery Dashboard
+   ============================================================ */
+
+:root {
+  --bg-0: #06070A;
+  --bg-1: #0B0D12;
+  --bg-2: #11141B;
+  --bg-3: #1A1E27;
+  --line: rgba(255,255,255,0.08);
+  --line-strong: rgba(255,255,255,0.16);
+  --text-0: #F4F6FA;
+  --text-1: #B7BECB;
+  --text-2: #6B7385;
+  --text-3: #434957;
+
+  --accent: oklch(0.78 0.16 230);          /* cyber blue */
+  --accent-glow: oklch(0.78 0.16 230 / 0.45);
+  --accent-soft: oklch(0.78 0.16 230 / 0.12);
+  --hot: oklch(0.74 0.19 50);              /* racing orange — for value highlights */
+  --hot-soft: oklch(0.74 0.19 50 / 0.14);
+  --good: oklch(0.78 0.18 145);
+  --warn: oklch(0.80 0.17 85);
+
+  --display: "Space Grotesk", "Helvetica Neue", sans-serif;
+  --body:    "Inter", "Helvetica Neue", sans-serif;
+  --mono:    "JetBrains Mono", ui-monospace, monospace;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+
+body {
+  background: var(--bg-0);
+  color: var(--text-0);
+  font-family: var(--body);
+  font-feature-settings: "ss01", "cv11";
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+/* ---------- Top frame: persistent topbar ---------- */
+.topbar {
+  position: fixed; top: 0; left: 0; right: 0;
+  height: 56px; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 28px;
+  background: linear-gradient(180deg, rgba(6,7,10,0.92) 0%, rgba(6,7,10,0.4) 80%, transparent 100%);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+.topbar .brand {
+  display: flex; align-items: center; gap: 10px;
+  font-family: var(--display); font-weight: 700; font-size: 14px; letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.topbar .brand .dot {
+  width: 8px; height: 8px; background: var(--accent); border-radius: 1px;
+  box-shadow: 0 0 12px var(--accent-glow);
+}
+.topbar .brand .sub {
+  color: var(--text-2); font-weight: 500; letter-spacing: 0.06em;
+}
+.topbar nav {
+  display: flex; gap: 26px;
+  font-family: var(--mono); font-size: 11px; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--text-2);
+}
+.topbar nav a { color: inherit; text-decoration: none; cursor: pointer; transition: color 150ms; }
+.topbar nav a:hover, .topbar nav a.active { color: var(--text-0); }
+.topbar nav a.active { color: var(--accent); }
+
+.topbar .meta { font-family: var(--mono); font-size: 11px; color: var(--text-2); letter-spacing: 0.08em; }
+
+/* ---------- Section scaffolding ---------- */
+section {
+  position: relative;
+  width: 100%;
+}
+.section-tag {
+  display: inline-flex; align-items: center; gap: 10px;
+  font-family: var(--mono); font-size: 11px; letter-spacing: 0.18em;
+  text-transform: uppercase; color: var(--text-2);
+}
+.section-tag::before {
+  content: ""; width: 24px; height: 1px; background: var(--accent);
+}
+
+.eyebrow {
+  font-family: var(--mono); font-size: 11px; letter-spacing: 0.2em;
+  text-transform: uppercase; color: var(--accent);
+}
+
+h1, h2, h3 { font-family: var(--display); font-weight: 600; letter-spacing: -0.02em; margin: 0; }
+
+.mono { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+
+/* ---------- Section 1: Hero ---------- */
+.hero {
+  min-height: 100vh;
+  display: grid;
+  grid-template-rows: 1fr auto;
+  padding: 96px 48px 48px;
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 60%, oklch(0.78 0.16 230 / 0.18) 0%, transparent 60%),
+    var(--bg-0);
+  overflow: hidden;
+}
+.hero-stage {
+  position: relative;
+  display: grid; place-items: center;
+  width: 100%;
+}
+.hero-headline {
+  position: absolute; inset: 0;
+  display: grid; place-items: center;
+  text-align: center;
+  pointer-events: none;
+  z-index: 3;
+}
+.hero-headline h1 {
+  font-size: clamp(42px, 7vw, 104px);
+  line-height: 0.98;
+  max-width: 16ch;
+  text-wrap: balance;
+}
+.hero-headline h1 .accent { color: var(--accent); }
+.hero-headline h1 .strike { position: relative; }
+.hero-headline h1 .strike::after {
+  content: ""; position: absolute; left: -2%; right: -2%; top: 56%; height: 4px;
+  background: var(--hot); transform: scaleX(0); transform-origin: left; transition: transform 800ms 600ms cubic-bezier(.2,.8,.2,1);
+}
+.hero.in-view .hero-headline h1 .strike::after { transform: scaleX(1); }
+
+.hero-headline p {
+  margin-top: 28px;
+  font-size: 17px; color: var(--text-1); max-width: 56ch;
+  line-height: 1.55;
+}
+
+.hero-car {
+  position: relative;
+  width: min(1100px, 92vw);
+  aspect-ratio: 16/9;
+  margin-top: 64px;
+  z-index: 1;
+}
+
+.hero-cta {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-top: 32px;
+  z-index: 4; position: relative;
+}
+.cta-btn {
+  display: inline-flex; align-items: center; gap: 14px;
+  padding: 18px 28px;
+  background: var(--accent);
+  color: #001220;
+  border: none; cursor: pointer;
+  font-family: var(--mono); font-size: 12px; font-weight: 600;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  border-radius: 2px;
+  transition: transform 200ms, box-shadow 200ms;
+  box-shadow: 0 0 0 1px var(--accent), 0 12px 40px var(--accent-glow);
+}
+.cta-btn:hover { transform: translateY(-2px); box-shadow: 0 0 0 1px var(--accent), 0 18px 60px var(--accent-glow); }
+.cta-btn .arrow { font-size: 14px; }
+
+.cta-side {
+  display: flex; gap: 36px;
+  font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--text-2);
+}
+.cta-side .stat strong { display: block; font-size: 22px; color: var(--text-0); margin-top: 6px; letter-spacing: 0; }
+
+.hero-scroll-hint {
+  position: absolute; bottom: 28px; left: 50%; transform: translateX(-50%);
+  font-family: var(--mono); font-size: 10px; letter-spacing: 0.3em; text-transform: uppercase;
+  color: var(--text-2);
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+}
+.hero-scroll-hint .line {
+  width: 1px; height: 28px;
+  background: linear-gradient(180deg, var(--text-2), transparent);
+  animation: scrollHint 2s ease-in-out infinite;
+}
+@keyframes scrollHint {
+  0% { transform: scaleY(0); transform-origin: top; }
+  50% { transform: scaleY(1); transform-origin: top; }
+  51% { transform: scaleY(1); transform-origin: bottom; }
+  100% { transform: scaleY(0); transform-origin: bottom; }
+}
+
+/* ---------- Car Render placeholder ---------- */
+.car-render {
+  position: relative;
+  width: 100%; height: 100%;
+  background:
+    repeating-linear-gradient(
+      135deg,
+      transparent 0 18px,
+      rgba(255,255,255,0.025) 18px 19px
+    ),
+    linear-gradient(180deg, var(--bg-1) 0%, var(--bg-2) 100%);
+  border: 1px solid var(--line);
+  display: grid; grid-template-rows: 1fr auto;
+  overflow: hidden;
+}
+.car-render::before {
+  content: "";
+  position: absolute; inset: auto 8% 8% 8%; height: 6px;
+  background: radial-gradient(ellipse, rgba(255,255,255,0.18), transparent 60%);
+  filter: blur(6px);
+}
+.car-render .render-label {
+  align-self: center; justify-self: center;
+  font-family: var(--mono); font-size: 11px; letter-spacing: 0.2em;
+  color: var(--text-3); text-transform: uppercase;
+  display: flex; gap: 12px; align-items: center;
+}
+.car-render .render-label .br { color: var(--accent); }
+.car-render .render-meta {
+  display: flex; justify-content: space-between;
+  padding: 12px 16px; border-top: 1px solid var(--line);
+  font-family: var(--mono); font-size: 10px; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--text-2);
+  background: rgba(0,0,0,0.3);
+}
+.car-render .render-meta .ok { color: var(--accent); }
+
+/* corner ticks */
+.car-render .tick {
+  position: absolute; width: 14px; height: 14px;
+  border: 1px solid var(--accent);
+}
+.car-render .tick.tl { top: 10px; left: 10px; border-right: 0; border-bottom: 0; }
+.car-render .tick.tr { top: 10px; right: 10px; border-left: 0; border-bottom: 0; }
+.car-render .tick.bl { bottom: 38px; left: 10px; border-right: 0; border-top: 0; }
+.car-render .tick.br { bottom: 38px; right: 10px; border-left: 0; border-top: 0; }
+
+/* ---------- Generic section header ---------- */
+.section-head {
+  padding: 120px 48px 56px;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: end;
+  border-top: 1px solid var(--line);
+}
+.section-head h2 {
+  font-size: clamp(36px, 4.6vw, 64px);
+  line-height: 1.02;
+  text-wrap: balance;
+}
+.section-head .lede {
+  color: var(--text-1); font-size: 17px; line-height: 1.6; max-width: 52ch;
+}
+.section-head .index {
+  font-family: var(--mono); font-size: 11px; color: var(--text-2);
+  letter-spacing: 0.2em; text-transform: uppercase;
+  margin-bottom: 20px;
+}
+
+/* ---------- Section 2: Paradox ---------- */
+.paradox {
+  padding-bottom: 120px;
+}
+.paradox-grid {
+  display: grid; grid-template-columns: 1fr auto 1fr;
+  gap: 0;
+  margin: 0 48px;
+  border: 1px solid var(--line);
+  background: var(--bg-1);
+}
+.paradox-card {
+  padding: 36px;
+  display: flex; flex-direction: column; gap: 24px;
+  position: relative;
+  transition: background 250ms;
+}
+.paradox-card:hover { background: var(--bg-2); }
+.paradox-card .row { display: flex; justify-content: space-between; align-items: baseline; }
+.paradox-card .name { font-family: var(--display); font-size: 28px; font-weight: 600; }
+.paradox-card .maker { font-family: var(--mono); font-size: 11px; color: var(--text-2); text-transform: uppercase; letter-spacing: 0.18em; }
+.paradox-card .price { font-family: var(--mono); font-size: 22px; font-variant-numeric: tabular-nums; }
+.paradox-card .render { aspect-ratio: 16/9; }
+.paradox-card .stats { display: flex; flex-direction: column; gap: 14px; }
+
+.stat-bar { display: grid; grid-template-columns: 80px 1fr 40px; gap: 14px; align-items: center; }
+.stat-bar .label { font-family: var(--mono); font-size: 10px; letter-spacing: 0.18em; color: var(--text-2); text-transform: uppercase; }
+.stat-bar .track { height: 8px; background: var(--bg-3); border: 1px solid var(--line); position: relative; }
+.stat-bar .fill { position: absolute; inset: 0 auto 0 0; background: var(--text-0); transition: width 800ms cubic-bezier(.2,.8,.2,1); }
+.stat-bar.tied .fill { background: var(--hot); box-shadow: 0 0 12px var(--hot-soft); }
+.stat-bar .num { font-family: var(--mono); font-size: 13px; text-align: right; font-variant-numeric: tabular-nums; }
+
+.paradox-divider {
+  width: 1px;
+  background: var(--line);
+  position: relative;
+}
+.paradox-divider .vs {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+  width: 64px; height: 64px; border-radius: 50%;
+  background: var(--bg-0); border: 1px solid var(--accent);
+  display: grid; place-items: center;
+  font-family: var(--mono); font-size: 12px; letter-spacing: 0.18em; color: var(--accent);
+  box-shadow: 0 0 30px var(--accent-glow);
+}
+
+.paradox-takeaway {
+  margin: 36px 48px 0;
+  padding: 28px 36px;
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--hot);
+  display: grid; grid-template-columns: auto 1fr auto; gap: 36px; align-items: center;
+}
+.paradox-takeaway .badge {
+  font-family: var(--mono); font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase;
+  color: var(--hot); padding: 6px 10px; border: 1px solid var(--hot); border-radius: 2px;
+}
+.paradox-takeaway .delta { font-family: var(--mono); font-size: 32px; font-weight: 600; color: var(--hot); }
+.paradox-takeaway .copy { color: var(--text-1); font-size: 15px; line-height: 1.5; max-width: 64ch; }
+
+/* ---------- Section 3: Class breakdown ---------- */
+.classes {
+  padding: 0 48px 120px;
+}
+.class-toolbar {
+  display: flex; justify-content: space-between; align-items: center;
+  border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);
+  padding: 16px 0;
+  margin-bottom: 24px;
+}
+.class-tabs { display: flex; gap: 4px; }
+.class-tabs button {
+  background: transparent; border: 1px solid var(--line);
+  color: var(--text-2); cursor: pointer;
+  padding: 10px 18px;
+  font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em;
+  text-transform: uppercase;
+  transition: all 180ms;
+}
+.class-tabs button:hover { color: var(--text-0); border-color: var(--line-strong); }
+.class-tabs button.active { background: var(--accent); color: #001220; border-color: var(--accent); }
+.class-meta { font-family: var(--mono); font-size: 11px; color: var(--text-2); letter-spacing: 0.14em; }
+
+.class-rows { display: flex; flex-direction: column; }
+.class-row {
+  display: grid; grid-template-columns: 28px 220px 1fr 80px 140px;
+  align-items: center; gap: 24px;
+  padding: 22px 0;
+  border-bottom: 1px solid var(--line);
+  transition: background 200ms;
+}
+.class-row:hover { background: var(--bg-1); }
+.class-row .rank { font-family: var(--mono); font-size: 11px; color: var(--text-3); }
+.class-row .name { font-family: var(--display); font-size: 18px; font-weight: 500; }
+.class-row .maker-cls {
+  display: block; margin-top: 4px;
+  font-family: var(--mono); font-size: 10px; color: var(--text-2);
+  letter-spacing: 0.16em; text-transform: uppercase;
+}
+.class-row .bar-wrap { position: relative; height: 22px; background: var(--bg-2); border: 1px solid var(--line); }
+.class-row .bar-fill {
+  position: absolute; inset: 0 auto 0 0;
+  background: linear-gradient(90deg, var(--accent), oklch(0.78 0.16 200));
+  transition: width 800ms cubic-bezier(.2,.8,.2,1);
+}
+.class-row .bar-mark { position: absolute; top: 0; bottom: 0; width: 1px; background: rgba(255,255,255,0.06); }
+.class-row .top { font-family: var(--mono); font-size: 18px; font-variant-numeric: tabular-nums; text-align: right; }
+.class-row .price { font-family: var(--mono); font-size: 13px; color: var(--text-2); text-align: right; font-variant-numeric: tabular-nums; }
+.class-row.leader .name { color: var(--accent); }
+.class-row.leader .bar-fill { background: linear-gradient(90deg, var(--hot), oklch(0.78 0.16 100)); box-shadow: 0 0 18px var(--hot-soft); }
+
+/* ---------- Hero annotation bubbles ---------- */
+.hero-car .hero-bubble {
+  position: absolute;
+  background: var(--bg-0);
+  border: 1px solid var(--accent);
+  padding: 10px 14px;
+  font-family: var(--mono); font-size: 10px; letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-0);
+  box-shadow: 0 0 24px var(--accent-glow);
+  z-index: 5;
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 600ms;
+}
+.hero.in-view .hero-car .hero-bubble { opacity: 1; }
+.hero-car .hero-bubble.b1 { top: 18%; left: -2%; transition-delay: 800ms; }
+.hero-car .hero-bubble.b2 { top: 30%; right: -2%; transition-delay: 1100ms; }
+.hero-car .hero-bubble.b3 { bottom: 28%; left: 6%; transition-delay: 1400ms; }
+.hero-car .hero-bubble .accent { color: var(--accent); }
+.hero-car .hero-bubble .hot { color: var(--hot); font-weight: 600; }
+.hero-car .hero-bubble .lbl { color: var(--text-2); display: block; margin-bottom: 4px; }
+
+/* ---------- Section 4: Discovery (Asphalt 8 inspired) ---------- */
+.discovery {
+  padding: 0 0 160px;
+  border-top: 1px solid var(--line);
+}
+.discovery-head {
+  padding: 96px 48px 48px;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: end;
+}
+.discovery-head h2 { font-size: clamp(36px, 4.6vw, 60px); line-height: 1.02; }
+.discovery-head .lede { color: var(--text-1); font-size: 16px; line-height: 1.6; max-width: 50ch; }
+
+/* New Asphalt-style stage: car centerpiece + radar top-right + sliders bottom */
+.discovery-shell {
+  margin: 0 48px;
+  border: 1px solid var(--line);
+  background:
+    radial-gradient(ellipse 70% 50% at 38% 45%, oklch(0.78 0.16 230 / 0.16) 0%, transparent 60%),
+    var(--bg-1);
+  display: grid;
+  grid-template-rows: minmax(520px, auto) auto auto;
+}
+
+.stage-row {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  min-height: 520px;
+  border-bottom: 1px solid var(--line);
+}
+
+/* Centerpiece car */
+.centerpiece {
+  position: relative;
+  padding: 48px 56px 48px 48px;
+  display: flex; flex-direction: column; justify-content: space-between;
+  border-right: 1px solid var(--line);
+}
+.centerpiece .cp-meta {
+  display: flex; justify-content: space-between; align-items: flex-start;
+}
+.centerpiece .cp-tag {
+  display: inline-flex; align-items: center; gap: 10px;
+  font-family: var(--mono); font-size: 10px; letter-spacing: 0.22em;
+  text-transform: uppercase; color: var(--hot);
+  padding: 6px 12px; border: 1px solid var(--hot); border-radius: 2px;
+}
+.centerpiece .cp-tag .pulse {
+  width: 6px; height: 6px; background: var(--hot); border-radius: 50%;
+  box-shadow: 0 0 10px var(--hot);
+  animation: pulse 1.6s ease-in-out infinite;
+}
+@keyframes pulse { 0%,100% { opacity: 1; transform: scale(1); } 50% { opacity: .5; transform: scale(.7); } }
+.centerpiece .cp-id { font-family: var(--mono); font-size: 11px; letter-spacing: 0.16em; color: var(--text-2); text-transform: uppercase; }
+
+.centerpiece .cp-stage {
+  flex: 1;
+  display: grid; place-items: center;
+  position: relative;
+  margin: 24px 0;
+}
+.centerpiece .cp-render {
+  width: 100%; aspect-ratio: 16/9;
+  position: relative;
+  animation: cpFloat 4s ease-in-out infinite;
+}
+@keyframes cpFloat { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+
+/* annotation bubbles around centerpiece */
+.cp-bubble {
+  position: absolute;
+  background: var(--bg-0);
+  border: 1px solid var(--accent);
+  padding: 8px 14px;
+  font-family: var(--mono); font-size: 10px; letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-0);
+  box-shadow: 0 0 20px var(--accent-glow);
+  z-index: 4;
+  white-space: nowrap;
+}
+.cp-bubble::before {
+  content: ""; position: absolute; width: 8px; height: 8px;
+  border: 1px solid var(--accent); background: var(--bg-0);
+  transform: rotate(45deg);
+}
+.cp-bubble.top-left { top: 12%; left: -10px; }
+.cp-bubble.top-left::before { right: -5px; top: 50%; transform: translateY(-50%) rotate(45deg); border-left: 0; border-top: 0; }
+.cp-bubble.top-right { top: 18%; right: -10px; }
+.cp-bubble.top-right::before { left: -5px; top: 50%; transform: translateY(-50%) rotate(45deg); border-right: 0; border-bottom: 0; }
+.cp-bubble.bot-left { bottom: 22%; left: -10px; }
+.cp-bubble.bot-left::before { right: -5px; top: 50%; transform: translateY(-50%) rotate(45deg); border-left: 0; border-top: 0; }
+.cp-bubble .accent { color: var(--accent); margin-right: 6px; }
+.cp-bubble .hot { color: var(--hot); }
+
+.centerpiece .cp-foot {
+  display: flex; justify-content: space-between; align-items: flex-end;
+  gap: 24px;
+}
+.centerpiece .cp-name {
+  font-family: var(--display); font-size: clamp(32px, 3.6vw, 52px);
+  font-weight: 600; line-height: 1; letter-spacing: -0.02em;
+}
+.centerpiece .cp-maker {
+  font-family: var(--mono); font-size: 11px; letter-spacing: 0.18em;
+  text-transform: uppercase; color: var(--text-2); margin-bottom: 12px;
+}
+.centerpiece .cp-price-block { text-align: right; }
+.centerpiece .cp-price-lbl {
+  font-family: var(--mono); font-size: 10px; letter-spacing: 0.18em;
+  text-transform: uppercase; color: var(--text-2);
+}
+.centerpiece .cp-price {
+  font-family: var(--mono); font-size: 36px; font-weight: 600;
+  font-variant-numeric: tabular-nums; color: var(--accent);
+  margin-top: 6px;
+}
+.centerpiece .cp-vps {
+  font-family: var(--mono); font-size: 11px; color: var(--hot);
+  letter-spacing: 0.14em; margin-top: 4px;
+}
+
+/* Right-side: radar/spec chart */
+.spec-panel {
+  padding: 36px;
+  display: flex; flex-direction: column; gap: 20px;
+  background: var(--bg-1);
+}
+.spec-head {
+  display: flex; justify-content: space-between; align-items: baseline;
+  padding-bottom: 14px; border-bottom: 1px solid var(--line);
+}
+.spec-head .title {
+  font-family: var(--display); font-weight: 600; font-size: 14px;
+  letter-spacing: 0.06em; text-transform: uppercase;
+}
+.spec-head .sub { font-family: var(--mono); font-size: 10px; letter-spacing: 0.16em; color: var(--text-2); text-transform: uppercase; }
+
+.radar-wrap {
+  position: relative;
+  aspect-ratio: 1;
+  max-width: 320px;
+  margin: 0 auto;
+  width: 100%;
+}
+.radar-wrap svg { width: 100%; height: 100%; overflow: visible; }
+.radar-grid { stroke: var(--line); fill: none; }
+.radar-grid-strong { stroke: var(--line-strong); fill: none; }
+.radar-axis { stroke: var(--line); stroke-dasharray: 2 4; }
+.radar-fill { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 1.5; transition: all 600ms cubic-bezier(.2,.8,.2,1); }
+.radar-point { fill: var(--accent); }
+.radar-label {
+  font-family: var(--mono); font-size: 10px; letter-spacing: 0.14em;
+  fill: var(--text-1); text-transform: uppercase;
+}
+.radar-num {
+  font-family: var(--mono); font-size: 11px; font-weight: 600;
+  fill: var(--accent);
+}
+
+.spec-stats {
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;
+  padding-top: 14px; border-top: 1px solid var(--line);
+}
+.spec-stats .ss {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 8px 12px; background: var(--bg-2); border: 1px solid var(--line);
+}
+.spec-stats .ss .l { font-family: var(--mono); font-size: 10px; letter-spacing: 0.16em; color: var(--text-2); text-transform: uppercase; }
+.spec-stats .ss .v { font-family: var(--mono); font-size: 16px; font-weight: 600; font-variant-numeric: tabular-nums; }
+
+/* Sliders row — full-width below stage */
+.slider-row {
+  padding: 32px 48px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 32px;
+  border-bottom: 1px solid var(--line);
+  background: var(--bg-1);
+}
+.slider-row .slider-head-block {
+  display: flex; justify-content: space-between; align-items: center;
+  grid-column: 1 / -1;
+  padding-bottom: 18px; border-bottom: 1px solid var(--line);
+  margin-bottom: 4px;
+}
+.slider-row .slider-head-block .t {
+  font-family: var(--display); font-size: 14px; font-weight: 600;
+  letter-spacing: 0.06em; text-transform: uppercase;
+}
+.slider-row .slider-head-block .reset {
+  background: transparent; border: 1px solid var(--line);
+  color: var(--text-2); padding: 8px 14px;
+  font-family: var(--mono); font-size: 10px; letter-spacing: 0.18em;
+  text-transform: uppercase; cursor: pointer;
+}
+.slider-row .slider-head-block .reset:hover { color: var(--accent); border-color: var(--accent); }
+
+/* Alternatives carousel */
+.alt-row {
+  padding: 28px 48px 36px;
+}
+.alt-head {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 16px;
+}
+.alt-head .t { font-family: var(--display); font-size: 14px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; }
+.alt-head .meta { font-family: var(--mono); font-size: 11px; color: var(--text-2); letter-spacing: 0.14em; text-transform: uppercase; }
+.alt-head .meta strong { color: var(--accent); }
+.alt-head .sort { display: flex; gap: 4px; }
+.alt-head .sort button {
+  background: transparent; border: 1px solid var(--line);
+  color: var(--text-2); padding: 7px 12px;
+  font-family: var(--mono); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase;
+  cursor: pointer;
+}
+.alt-head .sort button.active { background: var(--bg-3); color: var(--text-0); border-color: var(--line-strong); }
+
+.alt-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+}
+.alt-card {
+  border: 1px solid var(--line);
+  background: var(--bg-2);
+  padding: 12px;
+  display: flex; flex-direction: column; gap: 8px;
+  cursor: pointer;
+  transition: all 200ms cubic-bezier(.2,.8,.2,1);
+  position: relative;
+  animation: cardIn 320ms cubic-bezier(.2,.8,.2,1) backwards;
+}
+.alt-card:hover {
+  border-color: var(--accent);
+  background: var(--bg-3);
+  transform: translateY(-2px);
+}
+.alt-card.selected {
+  border-color: var(--accent);
+  background: linear-gradient(180deg, var(--accent-soft), var(--bg-2));
+  box-shadow: 0 0 0 1px var(--accent), 0 0 24px var(--accent-glow);
+}
+.alt-card .alt-render { aspect-ratio: 16/9; }
+.alt-card .alt-name { font-family: var(--display); font-size: 12px; font-weight: 600; line-height: 1.2; }
+.alt-card .alt-row-meta { display: flex; justify-content: space-between; align-items: baseline; }
+.alt-card .alt-price { font-family: var(--mono); font-size: 11px; font-variant-numeric: tabular-nums; }
+.alt-card .alt-cls { font-family: var(--mono); font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-2); }
+.alt-card .alt-stats { display: flex; gap: 8px; padding-top: 6px; border-top: 1px solid var(--line); }
+.alt-card .alt-stats .x { font-family: var(--mono); font-size: 10px; color: var(--text-1); }
+.alt-card .alt-stats .x b { color: var(--accent); font-weight: 600; }
+
+.scale-panel {
+  padding: 32px 28px;
+  border-right: 1px solid var(--line);
+  display: flex; flex-direction: column; gap: 28px;
+  background: var(--bg-1);
+}
+.scale-panel .panel-header {
+  display: flex; justify-content: space-between; align-items: baseline;
+  padding-bottom: 14px; border-bottom: 1px solid var(--line);
+}
+.scale-panel .panel-title {
+  font-family: var(--display); font-size: 16px; font-weight: 600;
+  letter-spacing: 0.04em; text-transform: uppercase;
+}
+.scale-panel .reset {
+  background: transparent; border: 0; cursor: pointer;
+  font-family: var(--mono); font-size: 10px; letter-spacing: 0.18em;
+  text-transform: uppercase; color: var(--text-2);
+}
+.scale-panel .reset:hover { color: var(--accent); }
+
+.scrubber { display: flex; flex-direction: column; gap: 12px; }
+.scrubber .hd { display: flex; justify-content: space-between; align-items: center; }
+.scrubber .hd-l { display: flex; gap: 10px; align-items: center; }
+.scrubber .icon {
+  width: 26px; height: 26px; display: grid; place-items: center;
+  border: 1px solid var(--line);
+  font-family: var(--mono); font-size: 11px; color: var(--accent);
+}
+.scrubber .name {
+  font-family: var(--mono); font-size: 11px; letter-spacing: 0.16em;
+  text-transform: uppercase; color: var(--text-1);
+}
+.scrubber .value { font-family: var(--mono); font-size: 12px; font-variant-numeric: tabular-nums; }
+
+.range-track {
+  position: relative; height: 28px; cursor: pointer;
+  user-select: none;
+}
+.range-track .axis {
+  position: absolute; top: 50%; left: 0; right: 0; height: 2px;
+  background: var(--bg-3); transform: translateY(-50%);
+}
+.range-track .axis-fill {
+  position: absolute; top: 50%; height: 2px;
+  background: var(--accent); transform: translateY(-50%);
+  box-shadow: 0 0 10px var(--accent-glow);
+}
+.range-track .handle {
+  position: absolute; top: 50%; transform: translate(-50%, -50%);
+  width: 14px; height: 14px; background: var(--text-0);
+  border: 2px solid var(--accent);
+  border-radius: 2px;
+  box-shadow: 0 0 14px var(--accent-glow);
+  cursor: grab;
+}
+.range-track .handle:active { cursor: grabbing; }
+.range-track .ticks { position: absolute; inset: 0; pointer-events: none; }
+.range-track .ticks span {
+  position: absolute; bottom: 4px; width: 1px; height: 6px; background: var(--text-3);
+}
+
+.scrubber .scale-min-max {
+  display: flex; justify-content: space-between;
+  font-family: var(--mono); font-size: 10px; color: var(--text-3); letter-spacing: 0.12em;
+}
+
+.scale-readout {
+  margin-top: auto;
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+  display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+}
+.scale-readout .stat {
+  display: flex; flex-direction: column; gap: 4px;
+}
+.scale-readout .lbl { font-family: var(--mono); font-size: 10px; letter-spacing: 0.16em; color: var(--text-2); text-transform: uppercase; }
+.scale-readout .val { font-family: var(--mono); font-size: 18px; font-variant-numeric: tabular-nums; }
+.scale-readout .val.hot { color: var(--hot); }
+
+/* Results panel */
+.results-panel { padding: 28px 32px; display: flex; flex-direction: column; gap: 20px; min-height: 0; }
+.results-toolbar {
+  display: flex; justify-content: space-between; align-items: center;
+  padding-bottom: 14px; border-bottom: 1px solid var(--line);
+}
+.results-toolbar .count { font-family: var(--mono); font-size: 12px; letter-spacing: 0.14em; color: var(--text-1); text-transform: uppercase; }
+.results-toolbar .count strong { color: var(--accent); font-weight: 600; }
+.results-toolbar .sort { display: flex; gap: 4px; }
+.results-toolbar .sort button {
+  background: transparent; border: 1px solid var(--line);
+  color: var(--text-2); padding: 7px 12px;
+  font-family: var(--mono); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase;
+  cursor: pointer;
+}
+.results-toolbar .sort button.active { background: var(--bg-3); color: var(--text-0); border-color: var(--line-strong); }
+
+.results-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 14px;
+  align-content: start;
+}
+.result-card {
+  border: 1px solid var(--line);
+  background: var(--bg-2);
+  padding: 14px;
+  display: flex; flex-direction: column; gap: 10px;
+  cursor: pointer;
+  transition: all 220ms cubic-bezier(.2,.8,.2,1);
+  position: relative;
+  animation: cardIn 320ms cubic-bezier(.2,.8,.2,1) backwards;
+}
+@keyframes cardIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+.result-card:hover {
+  border-color: var(--accent);
+  background: var(--bg-3);
+  transform: translateY(-2px);
+}
+.result-card.best {
+  border-color: var(--hot);
+  background: linear-gradient(180deg, var(--hot-soft), var(--bg-2));
+}
+.result-card.best .best-tag {
+  position: absolute; top: 0; right: 0;
+  background: var(--hot); color: #1a0900;
+  font-family: var(--mono); font-size: 9px; letter-spacing: 0.16em;
+  padding: 4px 10px; text-transform: uppercase;
+}
+.result-card .card-render { aspect-ratio: 16/9; }
+.result-card .card-name { font-family: var(--display); font-size: 14px; font-weight: 600; line-height: 1.2; }
+.result-card .card-row { display: flex; justify-content: space-between; align-items: baseline; }
+.result-card .card-price { font-family: var(--mono); font-size: 12px; font-variant-numeric: tabular-nums; }
+.result-card .card-cls { font-family: var(--mono); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-2); }
+.result-card .card-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; padding-top: 8px; border-top: 1px solid var(--line); }
+.result-card .ministat { display: flex; flex-direction: column; gap: 3px; }
+.result-card .ministat .lbl { font-family: var(--mono); font-size: 8px; letter-spacing: 0.14em; color: var(--text-3); text-transform: uppercase; }
+.result-card .ministat .v { font-family: var(--mono); font-size: 13px; font-variant-numeric: tabular-nums; }
+.result-card .vps { font-family: var(--mono); font-size: 10px; color: var(--text-2); letter-spacing: 0.1em; }
+.result-card .vps b { color: var(--hot); }
+
+.empty {
+  grid-column: 1 / -1;
+  padding: 80px 0;
+  text-align: center;
+  font-family: var(--mono); font-size: 12px; letter-spacing: 0.18em;
+  color: var(--text-3); text-transform: uppercase;
+}
+
+/* ---------- Footer ---------- */
+.foot {
+  padding: 56px 48px 36px;
+  border-top: 1px solid var(--line);
+  display: flex; justify-content: space-between; align-items: center;
+  font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em; color: var(--text-2);
+  text-transform: uppercase;
+}
+
+/* ---------- Reveal ---------- */
+.reveal { opacity: 0; transform: translateY(20px); transition: opacity 700ms cubic-bezier(.2,.8,.2,1), transform 700ms cubic-bezier(.2,.8,.2,1); }
+.reveal.in { opacity: 1; transform: translateY(0); }
+
+/* ---------- Misc ---------- */
+.scanline {
+  pointer-events: none; position: fixed; inset: 0; z-index: 0;
+  background: repeating-linear-gradient(0deg, transparent 0 3px, rgba(255,255,255,0.012) 3px 4px);
+  mix-blend-mode: overlay;
+}
+
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+  <script>
+// GTA V Vehicle Performance Database — sampled subset
+// Stats normalized 0–100 from in-game handling.meta values
+window.VEHICLES = [
+  {id:"granger3600lx",name:"Granger 3600LX",maker:"Declasse",cls:"SUVs",price:1380000,speed:76.2,accel:51.9,braking:28.0,handling:66.1},
+  {id:"iwagen",name:"I-Wagen",maker:"Obey",cls:"SUVs",price:1729000,speed:68.7,accel:57.9,braking:25.8,handling:71.7},
+  {id:"patriotmilspec",name:"Patriot Mil-Spec",maker:"Mammoth",cls:"Off-Road",price:1710000,speed:68.7,accel:57.5,braking:16.2,handling:60.2},
+  {id:"reever",name:"Reever",maker:"Western",cls:"Motorcycles",price:1900000,speed:81.1,accel:100.0,braking:43.3,handling:66.7},
+  {id:"shinobi",name:"Shinobi",maker:"Nagasaki",cls:"Motorcycles",price:2480500,speed:83.9,accel:90.6,braking:41.7,handling:69.7},
+  {id:"comets2cabrio",name:"Comet S2 Cabrio",maker:"Pfister",cls:"Sports",price:1797000,speed:83.8,accel:87.4,braking:29.7,handling:100.0},
+  {id:"zeno",name:"Zeno",maker:"Overflod",cls:"Super",price:2820000,speed:87.4,accel:97.0,braking:40.0,handling:83.3},
+  {id:"buffalostx",name:"Buffalo STX",maker:"Bravado",cls:"Muscle",price:2150000,speed:85.6,accel:85.6,braking:31.7,handling:78.2},
+  {id:"ignus",name:"Ignus",maker:"Pegassi",cls:"Super",price:2765000,speed:86.0,accel:95.9,braking:33.3,handling:83.9},
+  {id:"deity",name:"Deity",maker:"Enus",cls:"Sedans",price:1845000,speed:80.5,accel:73.1,braking:21.7,handling:65.2},
+  {id:"cinquemila",name:"Cinquemila",maker:"Lampadati",cls:"Sedans",price:1740000,speed:82.6,accel:88.4,braking:32.5,handling:79.7},
+  {id:"astron",name:"Astron",maker:"Pfister",cls:"SUVs",price:1580000,speed:79.8,accel:81.0,braking:16.0,handling:66.2},
+  {id:"champion",name:"Champion",maker:"Dewbauchee",cls:"Super",price:2995000,speed:86.3,accel:89.8,braking:38.3,handling:77.8},
+  {id:"jubilee",name:"Jubilee",maker:"Enus",cls:"SUVs",price:1650000,speed:81.0,accel:74.4,braking:25.0,handling:69.2},
+  {id:"previon",name:"Previon",maker:"Karin",cls:"Coupes",price:1490000,speed:80.2,accel:79.6,braking:28.3,handling:75.3},
+  {id:"sultanrsclassic",name:"Sultan RS Classic",maker:"Karin",cls:"Sports",price:1789000,speed:78.6,accel:84.6,braking:17.3,handling:75.6},
+  {id:"dominatorasp",name:"Dominator ASP",maker:"Vapid",cls:"Muscle",price:1775000,speed:80.9,accel:85.5,braking:30.7,handling:100.0},
+  {id:"cypher",name:"Cypher",maker:"Übermacht",cls:"Sports",price:1550000,speed:79.3,accel:81.5,braking:23.3,handling:78.5},
+  {id:"growler",name:"Growler",maker:"Pfister",cls:"Sports",price:1627000,speed:82.5,accel:83.4,braking:28.0,handling:79.7},
+  {id:"vectre",name:"Vectre",maker:"Emperor",cls:"Sports",price:1785000,speed:79.7,accel:81.0,braking:20.0,handling:79.8},
+  {id:"comets2",name:"Comet S2",maker:"Pfister",cls:"Sports",price:1878000,speed:83.9,accel:86.5,braking:29.3,handling:100.0},
+  {id:"remus",name:"Remus",maker:"Annis",cls:"Sports",price:1370000,speed:78.8,accel:81.8,braking:30.0,handling:100.0},
+  {id:"jesterrr",name:"Jester RR",maker:"Dinka",cls:"Sports",price:1970000,speed:81.8,accel:82.3,braking:28.3,handling:78.5},
+  {id:"tailgaters",name:"Tailgater S",maker:"Obey",cls:"Sedans",price:1495000,speed:79.3,accel:69.4,braking:29.3,handling:78.6},
+  {id:"warrenerhkr",name:"Warrener HKR",maker:"Vulcar",cls:"Sedans",price:1260000,speed:78.3,accel:66.2,braking:31.7,handling:65.5},
+  {id:"rt3000",name:"RT3000",maker:"Dinka",cls:"Sports",price:1715000,speed:79.9,accel:78.0,braking:33.3,handling:78.2},
+  {id:"zr350",name:"ZR350",maker:"Annis",cls:"Sports",price:1615000,speed:80.4,accel:82.5,braking:28.3,handling:75.3},
+  {id:"dominatorgtt",name:"Dominator GTT",maker:"Vapid",cls:"Muscle",price:1220000,speed:77.4,accel:75.7,braking:25.0,handling:75.8},
+  {id:"euros",name:"Euros",maker:"Annis",cls:"Sports",price:1800000,speed:80.4,accel:81.0,braking:30.0,handling:77.6},
+  {id:"futogtx",name:"Futo GTX",maker:"Karin",cls:"Sports",price:1590000,speed:73.5,accel:74.1,braking:17.5,handling:63.5},
+  {id:"calicogtf",name:"Calico GTF",maker:"Karin",cls:"Sports",price:1995000,speed:80.3,accel:84.6,braking:27.5,handling:100.0},
+  {id:"zr380arena",name:"ZR380 (Arena)",maker:"Annis",cls:"Sports",price:2138640,speed:84.8,accel:87.5,braking:26.7,handling:75.8},
+  {id:"imperatorarena",name:"Imperator (Arena)",maker:"Vapid",cls:"Muscle",price:2284940,speed:80.5,accel:91.2,braking:16.7,handling:68.2},
+  {id:"scarabarena",name:"Scarab (Arena)",maker:"HVY",cls:"Military",price:3076290,speed:53.7,accel:25.0,braking:23.3,handling:68.2},
+  {id:"brutusarena",name:"Brutus (Arena)",maker:"Declasse",cls:"Off-Road",price:2666650,speed:75.1,accel:67.5,braking:20.0,handling:60.6},
+  {id:"cerberusarena",name:"Cerberus (Arena)",maker:"MTL",cls:"Commercial",price:3870300,speed:65.5,accel:47.5,braking:8.3,handling:48.5},
+  {id:"issiarena",name:"Issi (Arena)",maker:"Weeny",cls:"Compacts",price:1089000,speed:75.1,accel:85.0,braking:13.3,handling:60.6},
+  {id:"deathbikearena",name:"Deathbike (Arena)",maker:"Western",cls:"Motorcycles",price:1269000,speed:78.9,accel:78.1,braking:36.7,handling:62.1},
+  {id:"slamvanarena",name:"Slamvan (Arena)",maker:"Vapid",cls:"Muscle",price:1321875,speed:72.7,accel:67.5,braking:13.3,handling:56.1},
+  {id:"sasquatcharena",name:"Sasquatch (Arena)",maker:"Bravado",cls:"Off-Road",price:1530875,speed:69.8,accel:100.0,braking:21.7,handling:68.9},
+  {id:"bruiserarena",name:"Bruiser (Arena)",maker:"Benefactor",cls:"Off-Road",price:1609000,speed:69.8,accel:65.0,braking:16.7,handling:53.0},
+  {id:"dominatorarena",name:"Dominator (Arena)",maker:"Vapid",cls:"Muscle",price:1132000,speed:80.5,accel:93.8,braking:26.7,handling:71.2},
+  {id:"impalerarena",name:"Impaler (Arena)",maker:"Declasse",cls:"Muscle",price:1209500,speed:83.2,accel:95.0,braking:23.3,handling:72.7},
+  {id:"manchezscout",name:"Manchez Scout",maker:"Maibatsu",cls:"Motorcycles",price:225000,speed:69.8,accel:66.2,braking:26.7,handling:65.0},
+  {id:"verus",name:"Verus",maker:"Dinka",cls:"Off-Road",price:192000,speed:61.7,accel:33.8,braking:8.7,handling:63.6},
+  {id:"brioso300",name:"Brioso 300",maker:"Grotti",cls:"Compacts",price:610000,speed:62.0,accel:45.0,braking:8.7,handling:56.0},
+  {id:"vetir",name:"Vetir",maker:"",cls:"Military",price:1630000,speed:53.7,accel:27.5,braking:10.0,handling:46.1},
+  {id:"weevil",name:"Weevil",maker:"BF",cls:"Compacts",price:870000,speed:72.4,accel:47.0,braking:8.7,handling:53.9},
+  {id:"slamtruck",name:"Slamtruck",maker:"Vapid",cls:"Utility",price:1310000,speed:75.1,accel:50.0,braking:26.7,handling:71.2},
+  {id:"italirsx",name:"Itali RSX",maker:"Grotti",cls:"Sports",price:3465000,speed:87.5,accel:100.0,braking:45.0,handling:100.0},
+  {id:"squaddie",name:"Squaddie",maker:"Mammoth",cls:"SUVs",price:1130000,speed:69.8,accel:42.5,braking:10.0,handling:60.6},
+  {id:"vetomoderngokart",name:"Veto Modern (Go-Kart)",maker:"Dinka",cls:"Sports",price:995000,speed:42.9,accel:100.0,braking:13.3,handling:88.6},
+  {id:"vetoclassicgokart",name:"Veto Classic (Go-Kart)",maker:"Dinka",cls:"Sports",price:895000,speed:40.2,accel:100.0,braking:11.7,handling:86.4},
+  {id:"toreador",name:"Toreador",maker:"Pegassi",cls:"Sports Classics",price:3660000,speed:80.5,accel:75.0,braking:33.3,handling:74.2},
+  {id:"ro86alkonost",name:"RO-86 Alkonost",maker:"",cls:"Planes",price:4350000,speed:90.5,accel:69.0,braking:62.4,handling:0.6},
+  {id:"winky",name:"Winky",maker:"Vapid",cls:"Off-Road",price:1100000,speed:48.3,accel:37.5,braking:8.7,handling:56.0},
+  {id:"gauntletclassiccusto",name:"Gauntlet Classic Custom",maker:"Bravado",cls:"Muscle",price:815000,speed:84.8,accel:72.5,braking:30.0,handling:68.2},
+  {id:"yosemiterancher",name:"Yosemite Rancher",maker:"Declasse",cls:"Off-Road",price:700000,speed:74.6,accel:68.8,braking:16.0,handling:63.6},
+  {id:"yougaclassic4x4",name:"Youga Classic 4x4",maker:"Bravado",cls:"Vans",price:1288000,speed:64.4,accel:42.5,braking:10.0,handling:59.1},
+  {id:"glendalecustom",name:"Glendale Custom",maker:"Benefactor",cls:"Sedans",price:520000,speed:79.4,accel:58.2,braking:20.8,handling:62.1},
+  {id:"peyotecustom",name:"Peyote Custom",maker:"Vapid",cls:"Sports Classics",price:620000,speed:75.1,accel:51.2,braking:9.3,handling:60.0},
+  {id:"mananacustom",name:"Manana Custom",maker:"Albany",cls:"Muscle",price:925000,speed:75.9,accel:60.0,braking:9.2,handling:60.0},
+  {id:"beaterdukes",name:"Beater Dukes",maker:"Imponte",cls:"Muscle",price:378000,speed:77.3,accel:78.8,braking:25.0,handling:66.7},
+  {id:"seminolefrontier",name:"Seminole Frontier",maker:"Canis",cls:"SUVs",price:678000,speed:69.8,accel:50.0,braking:26.7,handling:60.6},
+  {id:"landstalkerxl",name:"Landstalker XL",maker:"Dundreary",cls:"SUVs",price:1220000,speed:72.4,accel:47.5,braking:26.7,handling:65.2},
+  {id:"penumbraff",name:"Penumbra FF",maker:"Maibatsu",cls:"Sports",price:1380000,speed:76.2,accel:75.0,braking:26.7,handling:71.2},
+  {id:"club",name:"Club",maker:"BF",cls:"Compacts",price:1280000,speed:75.1,accel:59.4,braking:24.0,handling:62.1},
+  {id:"coquetted10",name:"Coquette D10",maker:"Invetero",cls:"Sports",price:1510000,speed:85.8,accel:80.0,braking:20.0,handling:100.0},
+  {id:"tigon",name:"Tigon",maker:"Lampadati",cls:"Super",price:2310000,speed:86.4,accel:94.9,braking:37.3,handling:100.0},
+  {id:"dr1indycar",name:"DR1 (IndyCar)",maker:"Declasse",cls:"Open Wheel",price:2997000,speed:87.3,accel:100.0,braking:38.3,handling:96.7},
+  {id:"br8formula1car",name:"BR8 (Formula 1 Car)",maker:"Benefactor",cls:"Open Wheel",price:3400000,speed:87.2,accel:100.0,braking:43.3,handling:100.0},
+  {id:"zhaba",name:"Zhaba",maker:"RUNE",cls:"Off-Road",price:2400000,speed:49.6,accel:45.0,braking:26.7,handling:57.6},
+  {id:"jb700w",name:"JB 700W",maker:"Dewbauchee",cls:"Sports Classics",price:1470000,speed:80.5,accel:65.0,braking:20.0,handling:65.2},
+  {id:"invadeandpersuaderct",name:"Invade and Persuade RC Tank",maker:"",cls:"Remote Control",price:2275000,speed:20.0,accel:15.0,braking:5.0,handling:61.0},
+  {id:"blistakanjo",name:"Blista Kanjo",maker:"Dinka",cls:"Compacts",price:580000,speed:75.1,accel:80.0,braking:16.7,handling:59.7},
+  {id:"sugoi",name:"Sugoi",maker:"Dinka",cls:"Sports",price:1224000,speed:83.7,accel:77.5,braking:28.3,handling:100.0},
+  {id:"driftyosemite",name:"Drift Yosemite",maker:"Declasse",cls:"Muscle",price:1308000,speed:75.1,accel:98.8,braking:28.3,handling:79.5},
+  {id:"outlaw",name:"Outlaw",maker:"Nagasaki",cls:"Off-Road",price:1268000,speed:62.8,accel:100.0,braking:20.0,handling:61.4},
+  {id:"sultanclassic",name:"Sultan Classic",maker:"Karin",cls:"Sports",price:1718000,speed:77.8,accel:82.5,braking:16.7,handling:75.6},
+  {id:"stryder",name:"Stryder",maker:"Nagasaki",cls:"Motorcycles",price:670000,speed:69.8,accel:90.0,braking:40.0,handling:74.2},
+  {id:"pr4formula1car",name:"PR4 (Formula 1 Car)",maker:"Progen",cls:"Open Wheel",price:3515000,speed:87.2,accel:100.0,braking:41.7,handling:100.0},
+  {id:"r88formula1car",name:"R88 (Formula 1 Car)",maker:"Ocelot",cls:"Open Wheel",price:3115000,speed:87.2,accel:100.0,braking:41.7,handling:99.0},
+  {id:"vstr",name:"V-STR",maker:"Albany",cls:"Sports",price:1285000,speed:85.4,accel:94.8,braking:20.8,handling:78.2},
+  {id:"imorgon",name:"Imorgon",maker:"Overflod",cls:"Sports",price:2165000,speed:79.7,accel:100.0,braking:27.8,handling:100.0},
+  {id:"furia",name:"Furia",maker:"Grotti",cls:"Super",price:2740000,speed:86.5,accel:91.2,braking:33.3,handling:81.8},
+  {id:"boxvillelsdwp",name:"Boxville (LSDWP)",maker:"Brute",cls:"Vans",price:398000,speed:53.7,accel:27.5,braking:8.3,handling:47.0},
+  {id:"bugstarsburrito",name:"Bugstars Burrito",maker:"Declasse",cls:"Vans",price:598500,speed:69.8,accel:40.0,braking:20.0,handling:59.1},
+  {id:"reblagts",name:"Rebla GTS",maker:"Übermacht",cls:"SUVs",price:1175000,speed:84.5,accel:83.8,braking:28.3,handling:66.5},
+  {id:"komoda",name:"Komoda",maker:"Lampadati",cls:"Sports",price:1700000,speed:83.7,accel:91.8,braking:31.7,handling:81.5},
+  {id:"asbo",name:"Asbo",maker:"Maxwell",cls:"Compacts",price:408000,speed:67.6,accel:58.5,braking:15.7,handling:58.2},
+  {id:"retinuemkii",name:"Retinue Mk II",maker:"Vapid",cls:"Sports Classics",price:1620000,speed:77.8,accel:69.4,braking:24.0,handling:62.1},
+  {id:"everon",name:"Everon",maker:"Karin",cls:"Off-Road",price:1475000,speed:73.0,accel:73.7,braking:10.0,handling:62.1},
+  {id:"vagrant",name:"Vagrant",maker:"Maxwell",cls:"Off-Road",price:2214000,speed:80.3,accel:83.1,braking:20.8,handling:71.2},
+  {id:"peyotegasser",name:"Peyote Gasser",maker:"Vapid",cls:"Muscle",price:805000,speed:79.7,accel:86.1,braking:30.0,handling:68.5},
+  {id:"dynasty",name:"Dynasty",maker:"Weeny",cls:"Sports Classics",price:450000,speed:63.3,accel:45.0,braking:13.3,handling:51.5},
+  {id:"hellion",name:"Hellion",maker:"Annis",cls:"Off-Road",price:835000,speed:71.6,accel:62.5,braking:10.0,handling:60.6},
+  {id:"zionclassic",name:"Zion Classic",maker:"Übermacht",cls:"Sports Classics",price:812000,speed:79.9,accel:76.2,braking:28.3,handling:71.2},
+  {id:"gauntlethellfire",name:"Gauntlet Hellfire",maker:"Bravado",cls:"Muscle",price:745000,speed:83.2,accel:90.0,braking:30.0,handling:71.2},
+  {id:"novak",name:"Novak",maker:"Lampadati",cls:"SUVs",price:608000,speed:82.1,accel:75.0,braking:26.7,handling:69.7},
+  {id:"rampantrockettricycl",name:"Rampant Rocket Tricycle",maker:"Western",cls:"Motorcycles",price:925000,speed:76.2,accel:95.5,braking:33.3,handling:63.6},
+  {id:"zorrusso",name:"Zorrusso",maker:"Pegassi",cls:"Super",price:1925000,speed:86.4,accel:93.6,braking:40.0,handling:100.0},
+  {id:"jugular",name:"Jugular",maker:"Ocelot",cls:"Sports",price:1225000,speed:84.5,accel:94.5,braking:36.7,handling:100.0},
+  {id:"krieger",name:"Krieger",maker:"Benefactor",cls:"Super",price:2875000,speed:86.8,accel:93.5,braking:37.3,handling:100.0},
+  {id:"locust",name:"Locust",maker:"Ocelot",cls:"Sports",price:1625000,speed:83.0,accel:83.5,braking:33.3,handling:100.0},
+  {id:"nebulaturbo",name:"Nebula Turbo",maker:"Vulcar",cls:"Sports Classics",price:797000,speed:74.0,accel:60.0,braking:16.7,handling:59.1},
+  {id:"emerus",name:"Emerus",maker:"Progen",cls:"Super",price:2750000,speed:86.5,accel:94.5,braking:40.0,handling:100.0},
+  {id:"gauntletclassic",name:"Gauntlet Classic",maker:"Bravado",cls:"Muscle",price:615000,speed:76.2,accel:70.0,braking:30.0,handling:75.8},
+  {id:"neo",name:"Neo",maker:"Vysser",cls:"Sports",price:1875000,speed:86.3,accel:96.8,braking:40.0,handling:79.4},
+  {id:"caracara4x4",name:"Caracara 4x4",maker:"Vapid",cls:"Off-Road",price:875000,speed:74.0,accel:67.5,braking:10.0,handling:62.1},
+  {id:"issisport",name:"Issi Sport",maker:"Weeny",cls:"Sports",price:897000,speed:79.4,accel:76.2,braking:33.3,handling:100.0},
+  {id:"8fdrafter",name:"8F Drafter",maker:"Obey",cls:"Sports",price:718000,speed:80.5,accel:85.5,braking:33.3,handling:81.7},
+  {id:"paragonr",name:"Paragon R",maker:"Enus",cls:"Sports",price:905000,speed:85.8,accel:82.2,braking:33.3,handling:81.1},
+  {id:"s80rr",name:"S80RR",maker:"Annis",cls:"Super",price:2575000,speed:87.1,accel:93.1,braking:41.7,handling:100.0},
+  {id:"thrax",name:"Thrax",maker:"Truffade",cls:"Super",price:2325000,speed:85.0,accel:85.0,braking:40.0,handling:100.0},
+  {id:"devesteeight",name:"Deveste Eight",maker:"Principe",cls:"Super",price:1795000,speed:91.2,accel:100.0,braking:33.3,handling:82.6},
+  {id:"vamos",name:"Vamos",maker:"Declasse",cls:"Muscle",price:596000,speed:77.8,accel:82.5,braking:16.7,handling:68.2},
+  {id:"deviant",name:"Deviant",maker:"Schyster",cls:"Muscle",price:512000,speed:77.8,accel:72.5,braking:16.7,handling:68.2},
+  {id:"rcbandito",name:"RC Bandito",maker:"",cls:"Remote Control",price:1590000,speed:42.0,accel:35.0,braking:25.0,handling:90.0},
+  {id:"schlagengt",name:"Schlagen GT",maker:"Benefactor",cls:"Sports",price:1300000,speed:85.4,accel:92.5,braking:26.7,handling:100.0},
+  {id:"tulip",name:"Tulip",maker:"Declasse",cls:"Muscle",price:718000,speed:79.1,accel:80.0,braking:16.7,handling:68.2},
+  {id:"italigto",name:"Itali GTO",maker:"Grotti",cls:"Sports",price:1965000,speed:86.5,accel:100.0,braking:36.7,handling:79.4},
+  {id:"clique",name:"Clique",maker:"Vapid",cls:"Muscle",price:909000,speed:80.5,accel:75.0,braking:28.3,handling:71.2},
+  {id:"toros",name:"Toros",maker:"Pegassi",cls:"SUVs",price:498000,speed:83.2,accel:80.0,braking:26.7,handling:69.7},
+  {id:"impaler",name:"Impaler",maker:"Declasse",cls:"Muscle",price:331835,speed:81.0,accel:77.5,braking:20.0,handling:71.2},
+  {id:"freecrawler",name:"Freecrawler",maker:"Canis",cls:"Off-Road",price:597000,speed:72.4,accel:60.0,braking:10.0,handling:62.1},
+  {id:"menacer",name:"Menacer",maker:"HVY",cls:"Off-Road",price:1775000,speed:69.8,accel:50.0,braking:20.0,handling:60.6},
+  {id:"scramjet",name:"Scramjet",maker:"Declasse",cls:"Super",price:4628400,speed:85.8,accel:100.0,braking:31.7,handling:81.8},
+  {id:"oppressormkii",name:"Oppressor Mk II",maker:"Pegassi",cls:"Motorcycles",price:3890250,speed:79.4,accel:95.0,braking:40.0,handling:63.6},
+  {id:"terrorbyte",name:"Terrorbyte",maker:"Benefactor",cls:"Commercial",price:1375000,speed:64.4,accel:40.0,braking:8.3,handling:59.1},
+  {id:"b11strikeforce",name:"B-11 Strikeforce",maker:"",cls:"Planes",price:3800000,speed:77.5,accel:80.0,braking:62.0,handling:2.1},
+  {id:"stafford",name:"Stafford",maker:"Enus",cls:"Sedans",price:1272000,speed:64.4,accel:50.0,braking:15.0,handling:60.6},
+  {id:"blimp",name:"Blimp",maker:"",cls:"Planes",price:1190350,speed:48.7,accel:31.0,braking:1.8,handling:7.4},
+  {id:"festivalbus",name:"Festival Bus",maker:"",cls:"Service",price:1842050,speed:48.3,accel:27.5,braking:8.3,handling:34.8},
+  {id:"patriotstretch",name:"Patriot Stretch",maker:"Mammoth",cls:"SUVs",price:611800,speed:69.8,accel:45.0,braking:10.7,handling:48.5},
+  {id:"poundercustom",name:"Pounder Custom",maker:"MTL",cls:"Commercial",price:320530,speed:64.4,accel:40.0,braking:8.3,handling:51.5},
+  {id:"mulecustom",name:"Mule Custom",maker:"Maibatsu",cls:"Commercial",price:95760,speed:53.7,accel:27.5,braking:8.3,handling:45.5},
+  {id:"swinger",name:"Swinger",maker:"Ocelot",cls:"Sports Classics",price:909000,speed:83.2,accel:97.5,braking:31.7,handling:72.7},
+  {id:"jesterclassic",name:"Jester Classic",maker:"Dinka",cls:"Sports",price:790000,speed:83.7,accel:80.0,braking:31.7,handling:78.0},
+  {id:"michelligt",name:"Michelli GT",maker:"Lampadati",cls:"Sports Classics",price:1225000,speed:75.1,accel:70.6,braking:25.0,handling:69.7},
+  {id:"cheburek",name:"Cheburek",maker:"RUNE",cls:"Sports Classics",price:145000,speed:75.1,accel:66.2,braking:26.7,handling:68.2},
+  {id:"tyrant",name:"Tyrant",maker:"Overflod",cls:"Super",price:2515000,speed:88.5,accel:85.0,braking:33.3,handling:100.0},
+  {id:"dominatorgtx",name:"Dominator GTX",maker:"Vapid",cls:"Muscle",price:725000,speed:78.1,accel:83.8,braking:16.7,handling:77.9},
+  {id:"caddyutility",name:"Caddy (Utility)",maker:"Nagasaki",cls:"Utility",price:85000,speed:34.9,accel:75.0,braking:6.7,handling:43.9},
+  {id:"issiclassic",name:"Issi Classic",maker:"Weeny",cls:"Compacts",price:360000,speed:67.1,accel:65.0,braking:10.0,handling:60.6},
+  {id:"flashgt",name:"Flash GT",maker:"Vapid",cls:"Sports",price:1675000,speed:81.6,accel:80.0,braking:33.3,handling:100.0},
+  {id:"caracara",name:"Caracara",maker:"Vapid",cls:"Off-Road",price:1775000,speed:72.4,accel:75.0,braking:9.0,handling:68.2},
+  {id:"tezeract",name:"Tezeract",maker:"Pegassi",cls:"Super",price:2825000,speed:90.7,accel:91.5,braking:40.0,handling:100.0},
+  {id:"ellie",name:"Ellie",maker:"Vapid",cls:"Muscle",price:565000,speed:75.4,accel:81.2,braking:16.7,handling:77.3},
+  {id:"gb200",name:"GB200",maker:"Vapid",cls:"Sports",price:940000,speed:81.6,accel:78.8,braking:33.3,handling:100.0},
+  {id:"taipan",name:"Taipan",maker:"Cheval",cls:"Super",price:1980000,speed:91.3,accel:89.2,braking:33.3,handling:100.0},
+  {id:"entityxxr",name:"Entity XXR",maker:"Overflod",cls:"Super",price:2305000,speed:91.2,accel:88.8,braking:33.3,handling:100.0},
+  {id:"fagaloa",name:"Fagaloa",maker:"Vulcar",cls:"Sports Classics",price:335000,speed:64.4,accel:52.5,braking:25.8,handling:72.0},
+  {id:"hotringsabre",name:"Hotring Sabre",maker:"Declasse",cls:"Sports",price:830000,speed:85.3,accel:83.8,braking:23.3,handling:77.3},
+  {id:"cometsr",name:"Comet SR",maker:"Pfister",cls:"Sports",price:1145000,speed:86.1,accel:90.0,braking:40.0,handling:100.0},
+  {id:"190z",name:"190z",maker:"Karin",cls:"Sports Classics",price:900000,speed:75.1,accel:67.5,braking:31.7,handling:69.7},
+  {id:"hustler",name:"Hustler",maker:"Vapid",cls:"Muscle",price:625000,speed:75.1,accel:75.0,braking:14.3,handling:59.1},
+  {id:"kamacho",name:"Kamacho",maker:"Canis",cls:"Off-Road",price:345000,speed:71.9,accel:63.8,braking:10.0,handling:60.6},
+  {id:"neon",name:"Neon",maker:"Pfister",cls:"Sports",price:1500000,speed:84.0,accel:62.6,braking:43.3,handling:68.9},
+  {id:"revolter",name:"Revolter",maker:"Übermacht",cls:"Sports",price:1610000,speed:75.1,accel:87.5,braking:26.7,handling:68.2},
+  {id:"gt500",name:"GT500",maker:"Grotti",cls:"Sports Classics",price:785000,speed:75.2,accel:72.5,braking:25.7,handling:66.7},
+  {id:"viseris",name:"Viseris",maker:"Lampadati",cls:"Sports Classics",price:875000,speed:83.4,accel:75.0,braking:26.7,handling:69.7},
+  {id:"savestra",name:"Savestra",maker:"Annis",cls:"Sports Classics",price:990000,speed:75.1,accel:59.4,braking:23.3,handling:62.1},
+  {id:"autarch",name:"Autarch",maker:"Overflod",cls:"Super",price:1955000,speed:86.4,accel:94.2,braking:40.0,handling:100.0},
+  {id:"hermes",name:"Hermes",maker:"Albany",cls:"Muscle",price:535000,speed:73.5,accel:71.2,braking:25.8,handling:72.0},
+  {id:"streiter",name:"Streiter",maker:"Benefactor",cls:"Sports",price:500000,speed:75.1,accel:53.1,braking:26.7,handling:63.0},
+  {id:"sentinelclassic",name:"Sentinel Classic",maker:"Übermacht",cls:"Sports",price:650000,speed:75.1,accel:66.2,braking:26.7,handling:68.2},
+  {id:"avenger",name:"Avenger",maker:"Mammoth",cls:"Planes",price:3450000,speed:76.1,accel:47.3,braking:45.0,handling:1.6},
+  {id:"deluxo",name:"Deluxo",maker:"Imponte",cls:"Sports Classics",price:4721500,speed:75.1,accel:56.9,braking:23.3,handling:62.1},
+  {id:"stromberg",name:"Stromberg",maker:"Ocelot",cls:"Sports Classics",price:3185350,speed:80.5,accel:72.5,braking:33.3,handling:75.8},
+  {id:"tm02khanjalitank",name:"TM-02 Khanjali Tank",maker:"",cls:"Military",price:3850350,speed:30.6,accel:25.0,braking:6.7,handling:77.3},
+  {id:"rcv",name:"RCV",maker:"",cls:"Emergency",price:3125500,speed:67.1,accel:40.0,braking:10.0,handling:53.0},
+  {id:"chernobog",name:"Chernobog",maker:"HVY",cls:"Military",price:3311700,speed:51.0,accel:30.0,braking:3.3,handling:60.6},
+  {id:"barrage",name:"Barrage",maker:"HVY",cls:"Military",price:2121350,speed:72.4,accel:55.6,braking:28.3,handling:53.0},
+  {id:"volatol",name:"Volatol",maker:"",cls:"Planes",price:3724000,speed:76.1,accel:28.6,braking:32.5,handling:1.0},
+  {id:"sc1",name:"SC1",maker:"Übermacht",cls:"Super",price:1603000,speed:85.3,accel:77.5,braking:37.3,handling:80.3},
+  {id:"raiden",name:"Raiden",maker:"Coil",cls:"Sports",price:1375000,speed:83.8,accel:61.2,braking:43.3,handling:65.2},
+  {id:"pariah",name:"Pariah",maker:"Ocelot",cls:"Sports",price:1420000,speed:83.2,accel:80.2,braking:33.3,handling:79.5},
+  {id:"cometsafari",name:"Comet Safari",maker:"Pfister",cls:"Sports",price:710000,speed:81.6,accel:73.1,braking:26.7,handling:63.6},
+  {id:"yosemite",name:"Yosemite",maker:"Declasse",cls:"Muscle",price:485000,speed:73.5,accel:71.2,braking:25.0,handling:72.0},
+  {id:"riata",name:"Riata",maker:"Vapid",cls:"Off-Road",price:380000,speed:72.4,accel:62.5,braking:10.0,handling:62.1},
+  {id:"cyclone",name:"Cyclone",maker:"Coil",cls:"Super",price:1890000,speed:83.2,accel:100.0,braking:40.0,handling:70.0},
+  {id:"p45nokota",name:"P-45 Nokota",maker:"",cls:"Planes",price:2653350,speed:100.0,accel:43.3,braking:50.0,handling:2.5},
+  {id:"mulearmored",name:"Mule (Armored)",maker:"Maibatsu",cls:"Commercial",price:43225,speed:53.7,accel:27.5,braking:54.1,handling:45.2},
+  {id:"seabreeze",name:"Seabreeze",maker:"Western Company",cls:"Planes",price:1130500,speed:100.0,accel:100.0,braking:100.0,handling:3.0},
+  {id:"vigilante",name:"Vigilante",maker:"Grotti",cls:"Super",price:3750000,speed:72.4,accel:65.0,braking:20.0,handling:63.6},
+  {id:"rapidgtclassic",name:"Rapid GT Classic",maker:"Dewbauchee",cls:"Sports Classics",price:885000,speed:80.2,accel:75.0,braking:16.7,handling:78.8},
+  {id:"mogul",name:"Mogul",maker:"Mammoth",cls:"Planes",price:3125500,speed:84.1,accel:25.2,braking:30.0,handling:1.5},
+  {id:"pyro",name:"Pyro",maker:"Buckingham",cls:"Planes",price:4455500,speed:100.0,accel:63.0,braking:57.5,handling:5.6},
+  {id:"howardnx25",name:"Howard NX-25",maker:"Buckingham",cls:"Planes",price:1296750,speed:56.1,accel:58.1,braking:75.0,handling:5.5},
+  {id:"yougaclassic",name:"Youga Classic",maker:"Bravado",cls:"Vans",price:195000,speed:64.4,accel:35.0,braking:10.0,handling:54.5},
+  {id:"youga",name:"Youga",maker:"Bravado",cls:"Vans",price:16000,speed:64.4,accel:35.0,braking:10.0,handling:54.5},
+  {id:"surfer",name:"Surfer",maker:"BF",cls:"Vans",price:11000,speed:53.7,accel:25.0,braking:10.0,handling:47.0},
+  {id:"rumpocustom",name:"Rumpo Custom",maker:"Bravado",cls:"Vans",price:130000,speed:69.8,accel:45.0,braking:10.0,handling:60.6},
+  {id:"rumpo",name:"Rumpo",maker:"Bravado",cls:"Vans",price:13000,speed:69.8,accel:42.5,braking:13.3,handling:59.1},
+  {id:"paradise",name:"Paradise",maker:"Bravado",cls:"Off-Road",price:25000,speed:69.8,accel:42.5,braking:13.3,handling:59.1},
+  {id:"minivancustom",name:"Minivan Custom",maker:"Vapid",cls:"Vans",price:330000,speed:67.1,accel:37.5,braking:15.0,handling:58.3},
+  {id:"minivan",name:"Minivan",maker:"Vapid",cls:"Vans",price:30000,speed:67.1,accel:37.5,braking:13.3,handling:57.6},
+  {id:"journey",name:"Journey",maker:"Zirconium",cls:"Vans",price:15000,speed:53.7,accel:32.5,braking:8.3,handling:42.4},
+  {id:"gangburrito",name:"Gang Burrito",maker:"Declasse",cls:"Vans",price:86450,speed:69.8,accel:40.0,braking:20.0,handling:59.1},
+  {id:"boxvillearmored",name:"Boxville (Armored)",maker:"Brute",cls:"Vans",price:2926000,speed:64.4,accel:80.0,braking:11.7,handling:65.9},
+  {id:"boxvillepostop",name:"Boxville (Post OP)",maker:"Brute",cls:"Vans",price:59850,speed:53.7,accel:27.5,braking:8.3,handling:47.0},
+  {id:"bobcatxl",name:"Bobcat XL",maker:"Vapid",cls:"Vans",price:23000,speed:69.8,accel:45.0,braking:26.7,handling:59.1},
+  {id:"bison",name:"Bison",maker:"Bravado",cls:"Vans",price:30000,speed:69.8,accel:50.0,braking:20.0,handling:62.1},
+  {id:"sadler",name:"Sadler",maker:"Vapid",cls:"Utility",price:35000,speed:69.8,accel:50.0,braking:20.0,handling:62.1},
+  {id:"caddybunker",name:"Caddy (Bunker)",maker:"Nagasaki",cls:"Utility",price:120000,speed:34.9,accel:75.0,braking:6.7,handling:43.9},
+  {id:"xlsarmored",name:"XLS (Armored)",maker:"Benefactor",cls:"SUVs",price:522000,speed:70.8,accel:66.2,braking:19.7,handling:62.1},
+  {id:"xls",name:"XLS",maker:"Benefactor",cls:"SUVs",price:253000,speed:70.8,accel:65.0,braking:19.3,handling:60.6},
+  {id:"serrano",name:"Serrano",maker:"Benefactor",cls:"SUVs",price:60000,speed:69.8,accel:50.0,braking:13.3,handling:63.6},
+  {id:"seminole",name:"Seminole",maker:"Canis",cls:"SUVs",price:30000,speed:69.8,accel:45.0,braking:26.7,handling:62.1},
+  {id:"rocoto",name:"Rocoto",maker:"Obey",cls:"SUVs",price:85000,speed:74.6,accel:47.5,braking:8.3,handling:63.6},
+  {id:"radius",name:"Radius",maker:"Vapid",cls:"SUVs",price:32000,speed:75.1,accel:50.0,braking:26.7,handling:68.2},
+  {id:"patriot",name:"Patriot",maker:"Mammoth",cls:"Off-Road",price:50000,speed:69.8,accel:50.0,braking:10.7,handling:51.5},
+  {id:"landstalker",name:"Landstalker",maker:"Dundreary",cls:"SUVs",price:58000,speed:72.4,accel:45.0,braking:26.7,handling:63.6},
+  {id:"huntleys",name:"Huntley S",maker:"Enus",cls:"SUVs",price:195000,speed:73.0,accel:66.2,braking:18.3,handling:63.6},
+  {id:"habanero",name:"Habanero",maker:"Emperor",cls:"SUVs",price:42000,speed:73.5,accel:45.0,braking:8.3,handling:63.6},
+  {id:"gresley",name:"Gresley",maker:"Bravado",cls:"SUVs",price:29000,speed:72.4,accel:50.0,braking:20.0,handling:57.6},
+  {id:"granger",name:"Granger",maker:"Declasse",cls:"SUVs",price:35000,speed:75.1,accel:47.5,braking:26.7,handling:65.2},
+  {id:"fq2",name:"FQ 2",maker:"Fathom",cls:"SUVs",price:50000,speed:72.4,accel:45.0,braking:8.3,handling:60.6},
+  {id:"contender",name:"Contender",maker:"Vapid",cls:"SUVs",price:250000,speed:72.4,accel:65.0,braking:20.0,handling:63.6},
+  {id:"cavalcadeii",name:"Cavalcade II",maker:"Albany",cls:"SUVs",price:70000,speed:68.1,accel:50.0,braking:20.0,handling:57.6},
+  {id:"cavalcade",name:"Cavalcade",maker:"Albany",cls:"SUVs",price:60000,speed:68.1,accel:50.0,braking:20.0,handling:57.6},
+  {id:"beejayxl",name:"BeeJay XL",maker:"Karin",cls:"SUVs",price:27000,speed:69.8,accel:47.5,braking:26.7,handling:62.1},
+  {id:"ballerlelwbarmored",name:"Baller LE LWB (Armored)",maker:"Gallivanter",cls:"SUVs",price:513000,speed:72.4,accel:66.2,braking:18.3,handling:60.6},
+  {id:"ballerlelwb",name:"Baller LE LWB",maker:"Gallivanter",cls:"SUVs",price:247000,speed:72.4,accel:67.5,braking:19.0,handling:60.6},
+  {id:"ballerlearmored",name:"Baller LE (Armored)",maker:"Gallivanter",cls:"SUVs",price:374000,speed:72.4,accel:67.5,braking:19.3,handling:60.6},
+  {id:"ballerle",name:"Baller LE",maker:"Gallivanter",cls:"SUVs",price:149000,speed:72.4,accel:68.8,braking:20.0,handling:60.6},
+  {id:"ballerii",name:"Baller II",maker:"Gallivanter",cls:"SUVs",price:90000,speed:72.4,accel:67.5,braking:20.0,handling:60.6},
+  {id:"zentorno",name:"Zentorno",maker:"Pegassi",cls:"Super",price:725000,speed:85.3,accel:88.8,braking:33.3,handling:80.3},
+  {id:"xa21",name:"XA-21",maker:"Ocelot",cls:"Super",price:2375000,speed:85.4,accel:91.0,braking:36.7,handling:81.2},
+  {id:"x80proto",name:"X80 Proto",maker:"Grotti",cls:"Super",price:2700000,speed:85.3,accel:93.8,braking:36.7,handling:81.8},
+  {id:"voltictopless",name:"Voltic (Topless)",maker:"Coil",cls:"Super",price:150000,speed:77.8,accel:90.0,braking:33.3,handling:76.7},
+  {id:"voltic",name:"Voltic",maker:"Coil",cls:"Super",price:150000,speed:77.8,accel:90.0,braking:33.3,handling:76.7},
+  {id:"visione",name:"Visione",maker:"Grotti",cls:"Super",price:2250000,speed:86.3,accel:92.5,braking:37.3,handling:91.7},
+  {id:"vagner",name:"Vagner",maker:"Dewbauchee",cls:"Super",price:1535000,speed:86.3,accel:92.5,braking:37.3,handling:91.7},
+  {id:"vacca",name:"Vacca",maker:"Pegassi",cls:"Super",price:240000,speed:81.6,accel:75.0,braking:33.3,handling:78.8},
+  {id:"tyrus",name:"Tyrus",maker:"Progen",cls:"Super",price:2550000,speed:86.4,accel:92.8,braking:40.0,handling:90.9},
+  {id:"turismor",name:"Turismo R",maker:"Grotti",cls:"Super",price:500000,speed:83.2,accel:88.2,braking:40.0,handling:80.0},
+  {id:"tempesta",name:"Tempesta",maker:"Pegassi",cls:"Super",price:1329000,speed:84.2,accel:90.0,braking:33.3,handling:80.3},
+  {id:"t20",name:"T20",maker:"Progen",cls:"Super",price:2200000,speed:85.3,accel:88.5,braking:33.3,handling:80.3},
+  {id:"sultanrs",name:"Sultan RS",maker:"Karin",cls:"Super",price:795000,speed:79.4,accel:82.5,braking:33.3,handling:75.8},
+  {id:"rocketvoltic",name:"Rocket Voltic",maker:"Coil",cls:"Super",price:3830400,speed:77.8,accel:45.0,braking:33.3,handling:76.7},
+  {id:"reaper",name:"Reaper",maker:"Pegassi",cls:"Super",price:1595000,speed:85.3,accel:91.2,braking:36.7,handling:80.9},
+  {id:"re7b",name:"RE-7B",maker:"Annis",cls:"Super",price:2475000,speed:86.4,accel:92.8,braking:36.7,handling:91.2},
+  {id:"penetrator",name:"Penetrator",maker:"Ocelot",cls:"Super",price:880000,speed:85.6,accel:75.0,braking:26.7,handling:78.2},
+  {id:"osiris",name:"Osiris",maker:"Pegassi",cls:"Super",price:1950000,speed:85.3,accel:88.5,braking:33.3,handling:80.3},
+  {id:"nerocustom",name:"Nero Custom",maker:"Truffade",cls:"Super",price:605000,speed:86.0,accel:85.0,braking:36.7,handling:81.1},
+  {id:"nero",name:"Nero",maker:"Truffade",cls:"Super",price:1440000,speed:85.8,accel:84.4,braking:33.3,handling:80.3},
+  {id:"italigtbcustom",name:"Itali GTB Custom",maker:"Progen",cls:"Super",price:495000,speed:85.4,accel:85.0,braking:40.0,handling:81.3},
+  {id:"italigtb",name:"Itali GTB",maker:"Progen",cls:"Super",price:1189000,speed:85.3,accel:84.1,braking:36.7,handling:75.8},
+  {id:"infernus",name:"Infernus",maker:"Pegassi",cls:"Super",price:440000,speed:80.5,accel:85.0,braking:16.7,handling:80.3},
+  {id:"gp1",name:"GP1",maker:"Progen",cls:"Super",price:1260000,speed:86.1,accel:92.5,braking:40.0,handling:84.8},
+  {id:"fmj",name:"FMJ",maker:"Vapid",cls:"Super",price:1750000,speed:85.0,accel:91.4,braking:36.7,handling:81.8},
+  {id:"etr1",name:"ETR1",maker:"Emperor",cls:"Super",price:1995000,speed:85.0,accel:82.5,braking:33.3,handling:88.7},
+  {id:"entityxf",name:"Entity XF",maker:"Overflod",cls:"Super",price:795000,speed:83.2,accel:82.5,braking:30.0,handling:83.3},
+  {id:"cheetah",name:"Cheetah",maker:"Grotti",cls:"Super",price:650000,speed:82.1,accel:80.0,braking:26.7,handling:80.3},
+  {id:"bullet",name:"Bullet",maker:"Vapid",cls:"Super",price:155000,speed:81.6,accel:82.5,braking:26.7,handling:77.3},
+  {id:"banshee900r",name:"Banshee 900R",maker:"Bravado",cls:"Super",price:565000,speed:80.5,accel:86.9,braking:33.3,handling:75.8},
+  {id:"adder",name:"Adder",maker:"Truffade",cls:"Super",price:1000000,speed:85.8,accel:80.0,braking:33.3,handling:75.8},
+  {id:"811",name:"811",maker:"Pfister",cls:"Super",price:1135000,speed:85.5,accel:89.0,braking:37.3,handling:81.5},
+  {id:"ztype",name:"Z-Type",maker:"Truffade",cls:"Sports Classics",price:950000,speed:75.1,accel:55.0,braking:13.3,handling:50.0},
+  {id:"turismoclassic",name:"Turismo Classic",maker:"Grotti",cls:"Sports Classics",price:705000,speed:81.8,accel:85.0,braking:16.7,handling:80.3},
+  {id:"tornadoratrod",name:"Tornado Rat Rod",maker:"Declasse",cls:"Sports Classics",price:378000,speed:69.8,accel:70.0,braking:8.3,handling:60.6},
+  {id:"tornadocustom",name:"Tornado Custom",maker:"Declasse",cls:"Sports Classics",price:375000,speed:69.8,accel:40.2,braking:8.5,handling:56.1},
+  {id:"tornado",name:"Tornado",maker:"Declasse",cls:"Sports Classics",price:30000,speed:69.8,accel:40.0,braking:8.3,handling:54.5},
+  {id:"torero",name:"Torero",maker:"Pegassi",cls:"Sports Classics",price:998000,speed:80.2,accel:75.0,braking:16.7,handling:78.8},
+  {id:"stirlinggt",name:"Stirling GT",maker:"Benefactor",cls:"Sports Classics",price:975000,speed:74.0,accel:75.0,braking:26.7,handling:71.2},
+  {id:"stingergt",name:"Stinger GT",maker:"Grotti",cls:"Sports Classics",price:875000,speed:77.8,accel:65.0,braking:20.0,handling:65.2},
+  {id:"stingertopless",name:"Stinger (Topless)",maker:"Grotti",cls:"Sports Classics",price:850000,speed:77.8,accel:65.0,braking:20.0,handling:65.2},
+  {id:"stinger",name:"Stinger",maker:"Grotti",cls:"Sports Classics",price:850000,speed:77.8,accel:65.0,braking:20.0,handling:65.2},
+  {id:"rooseveltvalor",name:"Roosevelt Valor",maker:"Albany",cls:"Sports Classics",price:982000,speed:67.1,accel:67.5,braking:18.3,handling:63.6},
+  {id:"roosevelt",name:"Roosevelt",maker:"Albany",cls:"Sports Classics",price:750000,speed:67.1,accel:67.5,braking:18.3,handling:63.6},
+  {id:"retinue",name:"Retinue",maker:"Vapid",cls:"Sports Classics",price:615000,speed:72.4,accel:72.5,braking:16.7,handling:62.1},
+  {id:"pigalle",name:"Pigalle",maker:"Lampadati",cls:"Sports Classics",price:400000,speed:79.9,accel:66.2,braking:28.3,handling:71.5},
+  {id:"peyote",name:"Peyote",maker:"Vapid",cls:"Sports Classics",price:38000,speed:69.8,accel:40.0,braking:8.3,handling:56.1},
+  {id:"monroe",name:"Monroe",maker:"Pegassi",cls:"Sports Classics",price:490000,speed:80.5,accel:70.0,braking:21.7,handling:66.7},
+  {id:"manana",name:"Manana",maker:"Albany",cls:"Sports Classics",price:10000,speed:69.8,accel:40.0,braking:8.3,handling:59.1},
+  {id:"mamba",name:"Mamba",maker:"Declasse",cls:"Sports Classics",price:995000,speed:79.4,accel:85.0,braking:16.7,handling:75.8},
+  {id:"jb700",name:"JB 700",maker:"Dewbauchee",cls:"Sports Classics",price:350000,speed:80.5,accel:65.0,braking:20.0,handling:65.2},
+  {id:"infernusclassic",name:"Infernus Classic",maker:"Pegassi",cls:"Sports Classics",price:915000,speed:80.2,accel:82.5,braking:16.7,handling:79.8},
+  {id:"frnkenstange",name:"FrÃ¤nken Stange",maker:"Albany",cls:"Sports Classics",price:550000,speed:72.4,accel:88.8,braking:18.3,handling:58.8},
+  {id:"coquetteclassictople",name:"Coquette Classic (Topless)",maker:"Invetero",cls:"Sports Classics",price:665000,speed:81.0,accel:85.0,braking:16.7,handling:69.7},
+  {id:"coquetteclassic",name:"Coquette Classic",maker:"Invetero",cls:"Sports Classics",price:665000,speed:81.0,accel:85.0,braking:16.7,handling:69.7},
+  {id:"cheetahclassic",name:"Cheetah Classic",maker:"Grotti",cls:"Sports Classics",price:865000,speed:81.6,accel:75.0,braking:26.7,handling:80.3},
+  {id:"casco",name:"Casco",maker:"Lampadati",cls:"Sports Classics",price:904400,speed:81.0,accel:80.0,braking:20.0,handling:69.7},
+  {id:"ardent",name:"Ardent",maker:"Ocelot",cls:"Sports Classics",price:1150000,speed:79.4,accel:71.2,braking:30.0,handling:80.3},
+  {id:"verlierer",name:"Verlierer",maker:"Bravado",cls:"Sports",price:695000,speed:80.5,accel:83.8,braking:33.3,handling:73.6},
+  {id:"troposrallye",name:"Tropos Rallye",maker:"Lampadati",cls:"Sports",price:816000,speed:81.6,accel:56.2,braking:23.3,handling:62.1},
+  {id:"drifttampa",name:"Drift Tampa",maker:"Declasse",cls:"Sports",price:995000,speed:80.5,accel:82.5,braking:16.7,handling:68.2},
+  {id:"surano",name:"Surano",maker:"Benefactor",cls:"Sports",price:110000,speed:83.2,accel:85.0,braking:33.3,handling:77.3},
+  {id:"sultan",name:"Sultan",maker:"Karin",cls:"Sports",price:12000,speed:77.8,accel:65.0,braking:13.3,handling:71.2},
+  {id:"spectercustom",name:"Specter Custom",maker:"Dewbauchee",cls:"Sports",price:252000,speed:83.3,accel:82.5,braking:36.7,handling:85.9},
+  {id:"specter",name:"Specter",maker:"Dewbauchee",cls:"Sports",price:599000,speed:83.2,accel:80.0,braking:33.3,handling:79.4},
+  {id:"seven70",name:"Seven-70",maker:"Dewbauchee",cls:"Sports",price:695000,speed:85.3,accel:83.8,braking:33.3,handling:77.6},
+  {id:"schwartzer",name:"Schwartzer",maker:"Benefactor",cls:"Sports",price:80000,speed:78.9,accel:72.5,braking:30.0,handling:69.7},
+  {id:"schafterv12",name:"Schafter V12",maker:"Benefactor",cls:"Sedans",price:116000,speed:80.5,accel:75.0,braking:31.7,handling:77.3},
+  {id:"schafterlwb",name:"Schafter LWB",maker:"Benefactor",cls:"Sedans",price:208000,speed:76.2,accel:50.0,braking:28.3,handling:77.3},
+  {id:"ruston",name:"Ruston",maker:"Hijak",cls:"Sports",price:430000,speed:79.4,accel:81.2,braking:40.0,handling:82.0},
+  {id:"raptor",name:"Raptor",maker:"BF",cls:"Sports",price:648000,speed:75.1,accel:73.7,braking:40.0,handling:78.8},
+  {id:"rapidgtcabrio",name:"Rapid GT Cabrio",maker:"Dewbauchee",cls:"Sports",price:140000,speed:81.6,accel:90.0,braking:33.3,handling:74.2},
+  {id:"rapidgt",name:"Rapid GT",maker:"Dewbauchee",cls:"Sports",price:132000,speed:81.6,accel:90.0,braking:33.3,handling:74.2},
+  {id:"penumbra",name:"Penumbra",maker:"Maibatsu",cls:"Sports",price:24000,speed:75.1,accel:55.0,braking:26.7,handling:68.2},
+  {id:"omnis",name:"Omnis",maker:"Obey",cls:"Sports",price:701000,speed:81.6,accel:76.2,braking:33.3,handling:64.8},
+  {id:"massacroracecar",name:"Massacro (Racecar)",maker:"Dewbauchee",cls:"Sports",price:385000,speed:83.8,accel:91.0,braking:30.0,handling:73.6},
+  {id:"massacro",name:"Massacro",maker:"Dewbauchee",cls:"Sports",price:275000,speed:82.1,accel:90.2,braking:30.0,handling:74.2},
+  {id:"lynx",name:"Lynx",maker:"Ocelot",cls:"Sports",price:1735000,speed:84.2,accel:78.8,braking:33.3,handling:77.6},
+  {id:"kurumaarmored",name:"Kuruma (Armored)",maker:"Karin",cls:"Sports",price:698250,speed:78.9,accel:77.5,braking:16.7,handling:74.2},
+  {id:"kuruma",name:"Kuruma",maker:"Karin",cls:"Sports",price:126350,speed:78.9,accel:77.5,braking:16.7,handling:74.2},
+  {id:"khamelion",name:"Khamelion",maker:"Hijak",cls:"Sports",price:100000,speed:75.1,accel:37.5,braking:30.0,handling:78.8},
+  {id:"jesterracecar",name:"Jester (Racecar)",maker:"Dinka",cls:"Sports",price:350000,speed:84.8,accel:77.5,braking:31.7,handling:77.9},
+  {id:"jester",name:"Jester",maker:"Dinka",cls:"Sports",price:240000,speed:84.8,accel:75.0,braking:31.7,handling:77.3},
+  {id:"futo",name:"Futo",maker:"Karin",cls:"Sports",price:9000,speed:72.4,accel:72.5,braking:16.7,handling:62.1},
+  {id:"fusilade",name:"Fusilade",maker:"Schyster",cls:"Sports",price:36000,speed:79.9,accel:80.0,braking:30.0,handling:74.2},
+  {id:"furoregt",name:"Furore GT",maker:"Lampadati",cls:"Sports",price:448000,speed:81.6,accel:83.8,braking:26.7,handling:77.6},
+  {id:"feltzer",name:"Feltzer",maker:"Benefactor",cls:"Sports",price:145000,speed:82.1,accel:85.0,braking:26.7,handling:80.3},
+  {id:"elegyrh8",name:"Elegy RH8",maker:"Annis",cls:"Sports",price:95000,speed:81.6,accel:82.5,braking:16.7,handling:81.8},
+  {id:"elegyretrocustom",name:"Elegy Retro Custom",maker:"Annis",cls:"Sports",price:904000,speed:79.4,accel:82.5,braking:33.3,handling:81.8},
+  {id:"coquettetopless",name:"Coquette (Topless)",maker:"Invetero",cls:"Sports",price:138000,speed:81.6,accel:82.5,braking:26.7,handling:77.3},
+  {id:"coquette",name:"Coquette",maker:"Invetero",cls:"Sports",price:138000,speed:81.6,accel:82.5,braking:26.7,handling:77.3},
+  {id:"cometretrocustom",name:"Comet Retro Custom",maker:"Pfister",cls:"Sports",price:645000,speed:81.6,accel:85.0,braking:26.7,handling:90.0},
+  {id:"comet",name:"Comet",maker:"Pfister",cls:"Sports",price:100000,speed:81.6,accel:85.0,braking:26.7,handling:78.8},
+  {id:"carbonizzare",name:"Carbonizzare",maker:"Grotti",cls:"Sports",price:195000,speed:84.8,accel:87.5,braking:26.7,handling:72.1},
+  {id:"sprunkbuffalo",name:"Sprunk Buffalo",maker:"Bravado",cls:"Sports",price:535000,speed:78.9,accel:77.5,braking:33.3,handling:74.2},
+  {id:"buffalos",name:"Buffalo S",maker:"Bravado",cls:"Sports",price:96000,speed:77.8,accel:72.5,braking:30.0,handling:74.2},
+  {id:"buffalo",name:"Buffalo",maker:"Bravado",cls:"Sports",price:35000,speed:77.8,accel:67.5,braking:30.0,handling:74.2},
+  {id:"blistacompact",name:"Blista Compact",maker:"Dinka",cls:"Sports",price:42000,speed:70.8,accel:57.5,braking:18.3,handling:63.6},
+  {id:"bestiagts",name:"Bestia GTS",maker:"Grotti",cls:"Sports",price:610000,speed:83.2,accel:80.0,braking:33.3,handling:73.3},
+  {id:"bansheetopless",name:"Banshee (Topless)",maker:"Bravado",cls:"Sports",price:126000,speed:79.4,accel:85.0,braking:33.3,handling:73.3},
+  {id:"banshee",name:"Banshee",maker:"Bravado",cls:"Sports",price:105000,speed:79.4,accel:85.0,braking:33.3,handling:73.3},
+  {id:"alpha",name:"Alpha",maker:"Albany",cls:"Sports",price:150000,speed:83.2,accel:85.0,braking:33.3,handling:77.3},
+  {id:"9fcabrio",name:"9F Cabrio",maker:"Obey",cls:"Sports",price:130000,speed:83.2,accel:82.5,braking:33.3,handling:77.3},
+  {id:"9f",name:"9F",maker:"Obey",cls:"Sports",price:120000,speed:83.2,accel:82.5,braking:33.3,handling:77.3},
+  {id:"wastelander",name:"Wastelander",maker:"MTL",cls:"Service",price:658350,speed:67.1,accel:82.5,braking:20.0,handling:69.7},
+  {id:"rentalshuttlebus",name:"Rental Shuttle Bus",maker:"Brute",cls:"Service",price:30000,speed:59.0,accel:30.0,braking:8.3,handling:47.0},
+  {id:"dune",name:"Dune",maker:"MTL",cls:"Service",price:1300000,speed:67.1,accel:82.5,braking:20.0,handling:69.7},
+  {id:"dashound",name:"Dashound",maker:"Brute",cls:"Service",price:525000,speed:53.7,accel:30.0,braking:8.3,handling:43.9},
+  {id:"bus",name:"Bus",maker:"Brute",cls:"Service",price:500000,speed:53.7,accel:30.0,braking:11.7,handling:43.9},
+  {id:"brickade",name:"Brickade",maker:"MTL",cls:"Service",price:1100000,speed:56.3,accel:50.0,braking:13.3,handling:60.6},
+  {id:"airportbus",name:"Airport Bus",maker:"Brute",cls:"Service",price:550000,speed:53.7,accel:30.0,braking:8.3,handling:43.9},
+  {id:"washington",name:"Washington",maker:"Albany",cls:"Sedans",price:15000,speed:75.1,accel:50.0,braking:30.0,handling:74.2},
+  {id:"warrener",name:"Warrener",maker:"Vulcar",cls:"Sedans",price:120000,speed:75.1,accel:61.2,braking:31.7,handling:65.5},
+  {id:"turretedlimo",name:"Turreted Limo",maker:"Benefactor",cls:"Sedans",price:1650000,speed:67.1,accel:67.5,braking:26.7,handling:65.9},
+  {id:"tailgater",name:"Tailgater",maker:"Obey",cls:"Sedans",price:55000,speed:77.8,accel:50.0,braking:30.0,handling:77.3},
+  {id:"surge",name:"Surge",maker:"Cheval",cls:"Sedans",price:38000,speed:75.1,accel:25.0,braking:20.0,handling:65.2},
+  {id:"superdiamond",name:"Super Diamond",maker:"Enus",cls:"Sedans",price:250000,speed:77.8,accel:65.0,braking:20.0,handling:63.6},
+  {id:"stretch",name:"Stretch",maker:"Dundreary",cls:"Sedans",price:30000,speed:72.4,accel:42.5,braking:26.7,handling:56.1},
+  {id:"stratum",name:"Stratum",maker:"Zirconium",cls:"Sedans",price:10000,speed:72.4,accel:52.5,braking:20.0,handling:66.7},
+  {id:"stanier",name:"Stanier",maker:"Vapid",cls:"Sedans",price:10000,speed:75.1,accel:50.0,braking:30.0,handling:74.2},
+  {id:"schafterv12armored",name:"Schafter V12 (Armored)",maker:"Benefactor",cls:"Sedans",price:325000,speed:80.5,accel:72.5,braking:30.7,handling:77.3},
+  {id:"schafterlwbarmored",name:"Schafter LWB (Armored)",maker:"Benefactor",cls:"Sedans",price:438000,speed:76.2,accel:46.2,braking:27.3,handling:77.3},
+  {id:"schafter",name:"Schafter",maker:"Benefactor",cls:"Sedans",price:65000,speed:77.8,accel:50.0,braking:30.0,handling:77.3},
+  {id:"romerohearse",name:"Romero Hearse",maker:"Chariot",cls:"Sedans",price:45000,speed:67.1,accel:37.5,braking:16.7,handling:59.1},
+  {id:"regina",name:"Regina",maker:"Dundreary",cls:"Sedans",price:8000,speed:64.4,accel:35.0,braking:20.0,handling:57.6},
+  {id:"primocustom",name:"Primo Custom",maker:"Albany",cls:"Sedans",price:400000,speed:75.1,accel:50.0,braking:30.0,handling:71.2},
+  {id:"primo",name:"Primo",maker:"Albany",cls:"Sedans",price:9000,speed:75.1,accel:50.0,braking:30.0,handling:71.2},
+  {id:"premier",name:"Premier",maker:"Declasse",cls:"Sedans",price:10000,speed:77.8,accel:50.0,braking:20.0,handling:63.6},
+  {id:"intruder",name:"Intruder",maker:"Karin",cls:"Sedans",price:16000,speed:77.8,accel:50.0,braking:30.0,handling:71.2},
+  {id:"ingot",name:"Ingot",maker:"Vulcar",cls:"Sedans",price:9000,speed:67.1,accel:35.0,braking:20.0,handling:59.1},
+  {id:"glendale",name:"Glendale",maker:"Benefactor",cls:"Sedans",price:200000,speed:78.9,accel:58.7,braking:21.7,handling:62.1},
+  {id:"fugitive",name:"Fugitive",maker:"Cheval",cls:"Sedans",price:24000,speed:77.8,accel:50.0,braking:30.0,handling:75.8},
+  {id:"cognoscenti55armored",name:"Cognoscenti 55 (Armored)",maker:"Enus",cls:"Sedans",price:396000,speed:77.8,accel:65.0,braking:18.3,handling:66.7},
+  {id:"cognoscenti55",name:"Cognoscenti 55",maker:"Enus",cls:"Sedans",price:154000,speed:77.8,accel:66.2,braking:19.0,handling:66.2},
+  {id:"cognoscentiarmored",name:"Cognoscenti (Armored)",maker:"Enus",cls:"Sedans",price:558000,speed:75.1,accel:63.8,braking:17.3,handling:63.6},
+  {id:"cognoscenti",name:"Cognoscenti",maker:"Enus",cls:"Sedans",price:254000,speed:75.1,accel:65.0,braking:18.3,handling:63.6},
+  {id:"asterope",name:"Asterope",maker:"Karin",cls:"Sedans",price:26000,speed:77.8,accel:50.0,braking:30.0,handling:75.8},
+  {id:"asea",name:"Asea",maker:"Declasse",cls:"Sedans",price:12000,speed:77.8,accel:50.0,braking:13.3,handling:62.1},
+  {id:"vestra",name:"Vestra",maker:"Buckingham",cls:"Planes",price:950000,speed:42.9,accel:46.0,braking:48.9,handling:30.0},
+  {id:"velum5seater",name:"Velum 5-Seater",maker:"JoBuilt",cls:"Planes",price:1323350,speed:81.8,accel:28.5,braking:23.3,handling:20.9},
+  {id:"velum",name:"Velum",maker:"JoBuilt",cls:"Planes",price:450000,speed:81.8,accel:58.0,braking:25.0,handling:68.0},
+  {id:"v65molotok",name:"V-65 Molotok",maker:"",cls:"Planes",price:4788000,speed:100.0,accel:43.3,braking:50.0,handling:2.5},
+  {id:"ultralight",name:"Ultralight",maker:"Nagasaki",cls:"Planes",price:665000,speed:23.9,accel:19.0,braking:55.0,handling:0.5},
+  {id:"tula",name:"Tula",maker:"Mammoth",cls:"Planes",price:5173700,speed:76.1,accel:19.0,braking:25.0,handling:2.0},
+  {id:"titan",name:"Titan",maker:"",cls:"Planes",price:2000000,speed:85.7,accel:57.0,braking:25.0,handling:30.0},
+  {id:"shamal",name:"Shamal",maker:"Buckingham",cls:"Planes",price:1150000,speed:99.2,accel:81.0,braking:25.0,handling:35.0},
+  {id:"rogue",name:"Rogue",maker:"Western Company",cls:"Planes",price:1596000,speed:100.0,accel:54.8,braking:50.0,handling:5.5},
+  {id:"p996lazer",name:"P-996 LAZER",maker:"JoBuilt",cls:"Planes",price:6500000,speed:100.0,accel:100.0,braking:25.0,handling:100.0},
+  {id:"nimbus",name:"Nimbus",maker:"Buckingham",cls:"Planes",price:1900000,speed:99.9,accel:41.5,braking:43.0,handling:13.4},
+  {id:"miljet",name:"Miljet",maker:"Buckingham",cls:"Planes",price:1700000,speed:42.6,accel:41.5,braking:41.7,handling:13.1},
+  {id:"mammatus",name:"Mammatus",maker:"JoBuilt",cls:"Planes",price:300000,speed:76.1,accel:50.0,braking:25.0,handling:90.0},
+  {id:"mallard",name:"Mallard",maker:"Western Company",cls:"Planes",price:250000,speed:86.5,accel:100.0,braking:25.0,handling:100.0},
+  {id:"luxordeluxe",name:"Luxor Deluxe",maker:"Buckingham",cls:"Planes",price:10000000,speed:99.2,accel:40.5,braking:40.2,handling:12.9},
+  {id:"luxor",name:"Luxor",maker:"Buckingham",cls:"Planes",price:1625000,speed:99.2,accel:81.0,braking:25.0,handling:35.0},
+  {id:"lf22starling",name:"LF-22 Starling",maker:"",cls:"Planes",price:3657500,speed:86.5,accel:58.2,braking:62.5,handling:2.7},
+  {id:"hydra",name:"Hydra",maker:"Mammoth",cls:"Planes",price:3990000,speed:99.5,accel:45.0,braking:51.1,handling:45.2},
+  {id:"duster",name:"Duster",maker:"Western Company",cls:"Planes",price:275000,speed:76.0,accel:50.0,braking:50.0,handling:82.0},
+  {id:"dodo",name:"Dodo",maker:"Mammoth",cls:"Planes",price:500000,speed:76.1,accel:25.0,braking:19.0,handling:25.9},
+  {id:"cuban800",name:"Cuban 800",maker:"Western Company",cls:"Planes",price:240000,speed:84.7,accel:60.0,braking:25.0,handling:62.7},
+  {id:"besra",name:"Besra",maker:"Western Company",cls:"Planes",price:1150000,speed:100.0,accel:100.0,braking:100.0,handling:39.2},
+  {id:"alphaz1",name:"Alpha-Z1",maker:"Buckingham",cls:"Planes",price:2121350,speed:56.1,accel:58.1,braking:75.0,handling:5.5},
+  {id:"trophytruck",name:"Trophy Truck",maker:"Vapid",cls:"Off-Road",price:550000,speed:75.1,accel:84.8,braking:10.0,handling:75.8},
+  {id:"liberator",name:"Liberator",maker:"Vapid",cls:"Off-Road",price:556511,speed:59.0,accel:100.0,braking:21.7,handling:63.6},
+  {id:"technicalcustom",name:"Technical Custom",maker:"Karin",cls:"Off-Road",price:142500,speed:69.8,accel:50.0,braking:23.3,handling:64.5},
+  {id:"technicalaqua",name:"Technical Aqua",maker:"Karin",cls:"Off-Road",price:1489600,speed:69.8,accel:62.5,braking:23.3,handling:64.5},
+  {id:"technical",name:"Technical",maker:"Karin",cls:"Off-Road",price:1263500,speed:69.8,accel:50.0,braking:20.0,handling:61.5},
+  {id:"streetblazer",name:"Street Blazer",maker:"Nagasaki",cls:"Off-Road",price:81000,speed:67.1,accel:62.5,braking:33.3,handling:81.8},
+  {id:"sandkingxl",name:"Sandking XL",maker:"Vapid",cls:"Off-Road",price:45000,speed:69.8,accel:50.0,braking:20.0,handling:60.6},
+  {id:"sandkingswb",name:"Sandking SWB",maker:"Vapid",cls:"Off-Road",price:38000,speed:69.8,accel:50.0,braking:20.0,handling:60.6},
+  {id:"rustyrebel",name:"Rusty Rebel",maker:"Karin",cls:"Off-Road",price:3000,speed:69.8,accel:50.0,braking:20.0,handling:62.1},
+  {id:"rebel",name:"Rebel",maker:"Karin",cls:"Off-Road",price:22000,speed:69.8,accel:50.0,braking:20.0,handling:62.1},
+  {id:"rancherxl",name:"Rancher XL",maker:"Declasse",cls:"Off-Road",price:9000,speed:69.8,accel:45.0,braking:26.7,handling:59.1},
+  {id:"rampbuggy",name:"Ramp Buggy",maker:"BF",cls:"Off-Road",price:3192000,speed:80.5,accel:80.0,braking:33.3,handling:85.9},
+  {id:"nightshark",name:"Nightshark",maker:"HVY",cls:"Off-Road",price:1245000,speed:75.1,accel:67.5,braking:25.0,handling:63.6},
+  {id:"mesamerryweather",name:"Mesa (Merryweather)",maker:"Canis",cls:"Off-Road",price:87000,speed:69.8,accel:42.5,braking:10.0,handling:60.6},
+  {id:"marshall",name:"Marshall",maker:"Cheval",cls:"Off-Road",price:500000,speed:59.0,accel:100.0,braking:21.7,handling:68.2},
+  {id:"kalaharitopless",name:"Kalahari (Topless)",maker:"Canis",cls:"Off-Road",price:51000,speed:64.4,accel:65.0,braking:33.3,handling:53.9},
+  {id:"kalahari",name:"Kalahari",maker:"Canis",cls:"Off-Road",price:40000,speed:64.4,accel:65.0,braking:33.3,handling:53.9},
+  {id:"insurgentpickupcusto",name:"Insurgent Pick-up Custom",maker:"HVY",cls:"Off-Road",price:202500,speed:69.8,accel:60.0,braking:20.0,handling:60.6},
+  {id:"insurgentpickup",name:"Insurgent Pick-up",maker:"HVY",cls:"Off-Road",price:1795500,speed:69.8,accel:50.0,braking:20.0,handling:60.6},
+  {id:"insurgent",name:"Insurgent",maker:"HVY",cls:"Off-Road",price:897750,speed:69.8,accel:50.0,braking:20.0,handling:60.6},
+  {id:"injection",name:"Injection",maker:"BF",cls:"Off-Road",price:16000,speed:72.4,accel:57.5,braking:20.7,handling:56.1},
+  {id:"hotrodblazer",name:"Hot Rod Blazer",maker:"Nagasaki",cls:"Off-Road",price:69000,speed:64.4,accel:50.0,braking:33.3,handling:78.8},
+  {id:"dunefav",name:"Dune FAV",maker:"BF",cls:"Off-Road",price:1130500,speed:72.4,accel:62.5,braking:21.0,handling:66.7},
+  {id:"dunebuggy",name:"Dune Buggy",maker:"BF",cls:"Off-Road",price:20000,speed:72.4,accel:62.5,braking:21.0,handling:66.7},
+  {id:"dubsta6x6",name:"Dubsta 6x6",maker:"Benefactor",cls:"Off-Road",price:249000,speed:73.5,accel:70.0,braking:20.0,handling:60.6},
+  {id:"desertraid",name:"Desert Raid",maker:"Vapid",cls:"Off-Road",price:695000,speed:75.1,accel:84.8,braking:10.0,handling:75.8},
+  {id:"brawler",name:"Brawler",maker:"Coil",cls:"Off-Road",price:715000,speed:72.4,accel:62.5,braking:20.7,handling:56.1},
+  {id:"bodhi",name:"Bodhi",maker:"Canis",cls:"Off-Road",price:25000,speed:71.9,accel:53.8,braking:36.7,handling:68.2},
+  {id:"blazerlifeguard",name:"Blazer Lifeguard",maker:"Nagasaki",cls:"Off-Road",price:62000,speed:59.0,accel:30.0,braking:26.7,handling:60.6},
+  {id:"blazeraqua",name:"Blazer Aqua",maker:"Nagasaki",cls:"Off-Road",price:1755600,speed:67.1,accel:68.0,braking:33.3,handling:81.8},
+  {id:"blazer",name:"Blazer",maker:"Nagasaki",cls:"Off-Road",price:8000,speed:64.4,accel:50.0,braking:33.3,handling:78.8},
+  {id:"bifta",name:"Bifta",maker:"BF",cls:"Off-Road",price:75000,speed:73.0,accel:65.0,braking:23.3,handling:62.1},
+  {id:"voodoocustom",name:"Voodoo Custom",maker:"Declasse",cls:"Muscle",price:420000,speed:69.8,accel:45.0,braking:23.3,handling:56.1},
+  {id:"voodoo",name:"Voodoo",maker:"Declasse",cls:"Muscle",price:5500,speed:69.8,accel:42.5,braking:8.3,handling:56.1},
+  {id:"virgoclassiccustom",name:"Virgo Classic Custom",maker:"Dundreary",cls:"Muscle",price:240000,speed:71.9,accel:52.5,braking:23.3,handling:62.1},
+  {id:"virgoclassic",name:"Virgo Classic",maker:"Dundreary",cls:"Muscle",price:165000,speed:71.9,accel:52.7,braking:24.0,handling:63.6},
+  {id:"virgo",name:"Virgo",maker:"Albany",cls:"Muscle",price:195000,speed:75.1,accel:70.0,braking:26.7,handling:77.6},
+  {id:"vigero",name:"Vigero",maker:"Declasse",cls:"Muscle",price:21000,speed:75.1,accel:72.5,braking:26.7,handling:62.1},
+  {id:"weaponizedtampa",name:"Weaponized Tampa",maker:"Declasse",cls:"Muscle",price:2108050,speed:77.8,accel:82.5,braking:16.7,handling:68.2},
+  {id:"tampa",name:"Tampa",maker:"Declasse",cls:"Muscle",price:375000,speed:75.1,accel:67.5,braking:26.7,handling:68.2},
+  {id:"burgershotstallion",name:"Burger Shot Stallion",maker:"Declasse",cls:"Muscle",price:277000,speed:77.3,accel:77.5,braking:23.3,handling:68.2},
+  {id:"stallion",name:"Stallion",maker:"Declasse",cls:"Muscle",price:71000,speed:77.3,accel:72.5,braking:23.3,handling:68.2},
+  {id:"slamvancustom",name:"Slamvan Custom",maker:"Vapid",cls:"Muscle",price:415000,speed:72.4,accel:62.5,braking:20.0,handling:71.2},
+  {id:"slamvan",name:"Slamvan",maker:"Vapid",cls:"Muscle",price:49500,speed:72.4,accel:62.5,braking:20.0,handling:50.0},
+  {id:"sabreturbocustom",name:"Sabre Turbo Custom",maker:"Declasse",cls:"Muscle",price:490000,speed:75.1,accel:70.5,braking:27.3,handling:68.5},
+  {id:"sabreturbo",name:"Sabre Turbo",maker:"Declasse",cls:"Muscle",price:15000,speed:75.1,accel:70.0,braking:26.7,handling:68.2},
+  {id:"ruiner2000",name:"Ruiner 2000",maker:"Imponte",cls:"Muscle",price:5745600,speed:81.6,accel:82.5,braking:33.3,handling:63.6},
+  {id:"ruiner",name:"Ruiner",maker:"Imponte",cls:"Muscle",price:10000,speed:77.8,accel:70.0,braking:26.7,handling:66.7},
+  {id:"rattruck",name:"Rat-Truck",maker:"Bravado",cls:"Muscle",price:37500,speed:72.4,accel:55.0,braking:13.3,handling:50.0},
+  {id:"ratloader",name:"Rat-Loader",maker:"Bravado",cls:"Muscle",price:6000,speed:72.4,accel:55.0,braking:13.3,handling:50.0},
+  {id:"picador",name:"Picador",maker:"Cheval",cls:"Muscle",price:9000,speed:72.4,accel:55.0,braking:26.7,handling:62.1},
+  {id:"nightshade",name:"Nightshade",maker:"Imponte",cls:"Muscle",price:585000,speed:77.8,accel:62.5,braking:20.0,handling:68.2},
+  {id:"moonbeamcustom",name:"Moonbeam Custom",maker:"Declasse",cls:"Muscle",price:370000,speed:67.1,accel:52.5,braking:13.3,handling:60.6},
+  {id:"moonbeam",name:"Moonbeam",maker:"Declasse",cls:"Muscle",price:32500,speed:67.1,accel:52.5,braking:13.3,handling:60.6},
+  {id:"lurcher",name:"Lurcher",maker:"Albany",cls:"Muscle",price:650000,speed:78.3,accel:72.5,braking:26.7,handling:65.2},
+  {id:"hotknife",name:"Hotknife",maker:"Vapid",cls:"Muscle",price:90000,speed:75.1,accel:75.0,braking:14.3,handling:56.1},
+  {id:"redwoodgauntlet",name:"Redwood Gauntlet",maker:"Bravado",cls:"Muscle",price:230000,speed:78.9,accel:78.8,braking:30.0,handling:76.1},
+  {id:"gauntlet",name:"Gauntlet",maker:"Bravado",cls:"Muscle",price:32000,speed:77.8,accel:75.0,braking:30.0,handling:75.8},
+  {id:"factioncustomdonk",name:"Faction Custom Donk",maker:"Willard",cls:"Muscle",price:695000,speed:75.1,accel:50.0,braking:26.7,handling:71.2},
+  {id:"factioncustom",name:"Faction Custom",maker:"Willard",cls:"Muscle",price:335000,speed:75.1,accel:70.0,braking:26.7,handling:68.2},
+  {id:"faction",name:"Faction",maker:"Willard",cls:"Muscle",price:36000,speed:75.1,accel:70.0,braking:26.7,handling:68.2},
+  {id:"dukes",name:"Dukes",maker:"Imponte",cls:"Muscle",price:62000,speed:77.3,accel:80.0,braking:26.7,handling:68.2},
+  {id:"dukeodeath",name:"Duke O'Death",maker:"Imponte",cls:"Muscle",price:665000,speed:81.6,accel:87.5,braking:30.0,handling:68.5},
+  {id:"piwasserdominator",name:"PiÃŸwasser Dominator",maker:"Vapid",cls:"Muscle",price:315000,speed:78.9,accel:77.5,braking:30.0,handling:69.7},
+  {id:"dominator",name:"Dominator",maker:"Vapid",cls:"Muscle",price:35000,speed:77.8,accel:72.5,braking:26.7,handling:68.2},
+  {id:"coquetteblackfin",name:"Coquette BlackFin",maker:"Invetero",cls:"Muscle",price:695000,speed:81.0,accel:85.0,braking:16.7,handling:69.7},
+  {id:"chinocustom",name:"Chino Custom",maker:"Vapid",cls:"Muscle",price:180000,speed:69.8,accel:52.5,braking:20.0,handling:62.7},
+  {id:"chino",name:"Chino",maker:"Vapid",cls:"Muscle",price:225000,speed:75.1,accel:70.0,braking:26.7,handling:68.2},
+  {id:"buccaneercustom",name:"Buccaneer Custom",maker:"Albany",cls:"Muscle",price:390000,speed:78.3,accel:70.0,braking:26.7,handling:65.2},
+  {id:"buccaneer",name:"Buccaneer",maker:"Albany",cls:"Muscle",price:29000,speed:78.3,accel:70.0,braking:26.7,handling:65.2},
+  {id:"blade",name:"Blade",maker:"Vapid",cls:"Muscle",price:160000,speed:77.8,accel:81.0,braking:26.7,handling:67.6},
+  {id:"zombiechopper",name:"Zombie Chopper",maker:"Western",cls:"Motorcycles",price:122000,speed:73.5,accel:72.5,braking:26.7,handling:56.8},
+  {id:"zombiebobber",name:"Zombie Bobber",maker:"Western",cls:"Motorcycles",price:99000,speed:73.5,accel:72.5,braking:26.7,handling:56.8},
+  {id:"wolfsbane",name:"Wolfsbane",maker:"Western",cls:"Motorcycles",price:95000,speed:69.8,accel:53.8,braking:40.0,handling:50.0},
+  {id:"vortex",name:"Vortex",maker:"Pegassi",cls:"Motorcycles",price:356000,speed:79.4,accel:100.0,braking:40.0,handling:65.2},
+  {id:"vindicator",name:"Vindicator",maker:"Dinka",cls:"Motorcycles",price:630000,speed:81.6,accel:66.2,braking:50.0,handling:60.0},
+  {id:"vader",name:"Vader",maker:"Shitzu",cls:"Motorcycles",price:9000,speed:75.1,accel:67.5,braking:36.7,handling:57.6},
+  {id:"thrust",name:"Thrust",maker:"Dinka",cls:"Motorcycles",price:75000,speed:81.6,accel:66.2,braking:50.0,handling:60.0},
+  {id:"sovereign",name:"Sovereign",maker:"Western",cls:"Motorcycles",price:90000,speed:72.4,accel:67.5,braking:36.7,handling:57.6},
+  {id:"shotaro",name:"Shotaro",maker:"Nagasaki",cls:"Motorcycles",price:2225000,speed:85.6,accel:100.0,braking:46.7,handling:81.8},
+  {id:"sanctus",name:"Sanctus",maker:"LCC",cls:"Motorcycles",price:1995000,speed:77.3,accel:100.0,braking:33.3,handling:59.1},
+  {id:"sanchezlivery",name:"Sanchez (Livery)",maker:"Maibatsu",cls:"Motorcycles",price:7000,speed:63.3,accel:70.0,braking:36.7,handling:65.2},
+  {id:"sanchez",name:"Sanchez",maker:"Maibatsu",cls:"Motorcycles",price:8000,speed:63.3,accel:70.0,braking:36.7,handling:65.2},
+  {id:"ruffian",name:"Ruffian",maker:"Pegassi",cls:"Motorcycles",price:10000,speed:75.1,accel:85.0,braking:36.7,handling:59.1},
+  {id:"ratbike",name:"Rat Bike",maker:"Western",cls:"Motorcycles",price:48000,speed:69.8,accel:53.8,braking:40.0,handling:50.0},
+  {id:"pcj600",name:"PCJ 600",maker:"Shitzu",cls:"Motorcycles",price:9000,speed:69.8,accel:65.0,braking:43.3,handling:62.1},
+  {id:"oppressor",name:"Oppressor",maker:"Pegassi",cls:"Motorcycles",price:3524500,speed:79.4,accel:100.0,braking:40.0,handling:64.4},
+  {id:"nightblade",name:"Nightblade",maker:"Western",cls:"Motorcycles",price:100000,speed:76.2,accel:77.5,braking:40.0,handling:59.1},
+  {id:"nemesis",name:"Nemesis",maker:"Principe",cls:"Motorcycles",price:12000,speed:75.1,accel:75.0,braking:40.0,handling:59.1},
+  {id:"manchez",name:"Manchez",maker:"Maibatsu",cls:"Motorcycles",price:67000,speed:77.8,accel:73.7,braking:40.0,handling:65.2},
+  {id:"lectro",name:"Lectro",maker:"Principe",cls:"Motorcycles",price:997500,speed:75.1,accel:70.0,braking:40.0,handling:59.1},
+  {id:"innovation",name:"Innovation",maker:"LCC",cls:"Motorcycles",price:92500,speed:72.4,accel:80.0,braking:33.3,handling:57.6},
+  {id:"hexer",name:"Hexer",maker:"LCC",cls:"Motorcycles",price:15000,speed:72.4,accel:65.0,braking:33.3,handling:56.1},
+  {id:"hakuchoudragbike",name:"Hakuchou Drag Bike",maker:"Shitzu",cls:"Motorcycles",price:976000,speed:85.3,accel:100.0,braking:46.7,handling:87.9},
+  {id:"hakuchou",name:"Hakuchou",maker:"Shitzu",cls:"Motorcycles",price:82000,speed:81.6,accel:78.8,braking:46.7,handling:69.7},
+  {id:"gargoyle",name:"Gargoyle",maker:"Western",cls:"Motorcycles",price:120000,speed:78.9,accel:78.1,braking:36.7,handling:68.2},
+  {id:"fcr1000custom",name:"FCR 1000 Custom",maker:"Pegassi",cls:"Motorcycles",price:196000,speed:75.2,accel:77.5,braking:41.7,handling:65.2},
+  {id:"fcr1000",name:"FCR 1000",maker:"Pegassi",cls:"Motorcycles",price:135000,speed:75.1,accel:76.2,braking:40.0,handling:63.6},
+  {id:"faggiosport",name:"Faggio Sport",maker:"Pegassi",cls:"Motorcycles",price:47500,speed:51.0,accel:49.4,braking:13.3,handling:51.5},
+  {id:"faggiomod",name:"Faggio Mod",maker:"Pegassi",cls:"Motorcycles",price:55000,speed:48.3,accel:28.8,braking:13.3,handling:51.5},
+  {id:"faggio",name:"Faggio",maker:"Pegassi",cls:"Motorcycles",price:5000,speed:48.3,accel:25.0,braking:13.3,handling:48.5},
+  {id:"esskey",name:"Esskey",maker:"Pegassi",cls:"Motorcycles",price:264000,speed:77.8,accel:73.7,braking:40.0,handling:65.2},
+  {id:"enduro",name:"Enduro",maker:"Dinka",cls:"Motorcycles",price:48000,speed:63.8,accel:72.5,braking:36.7,handling:65.5},
+  {id:"doublet",name:"Double-T",maker:"Dinka",cls:"Motorcycles",price:12000,speed:78.9,accel:77.5,braking:46.7,handling:66.1},
+  {id:"diaboluscustom",name:"Diabolus Custom",maker:"Principe",cls:"Motorcycles",price:245000,speed:76.5,accel:80.0,braking:41.7,handling:60.6},
+  {id:"diabolus",name:"Diabolus",maker:"Principe",cls:"Motorcycles",price:169000,speed:76.5,accel:78.0,braking:40.0,handling:59.1},
+  {id:"defiler",name:"Defiler",maker:"Shitzu",cls:"Motorcycles",price:412000,speed:79.4,accel:100.0,braking:40.0,handling:65.2},
+  {id:"daemoncustom",name:"Daemon Custom",maker:"Western",cls:"Motorcycles",price:145000,speed:72.4,accel:65.5,braking:20.0,handling:56.1},
+  {id:"cliffhanger",name:"Cliffhanger",maker:"Western",cls:"Motorcycles",price:225000,speed:79.1,accel:79.5,braking:36.7,handling:68.2},
+  {id:"chimera",name:"Chimera",maker:"Nagasaki",cls:"Motorcycles",price:210000,speed:72.4,accel:60.0,braking:33.3,handling:63.6},
+  {id:"carbonrs",name:"Carbon RS",maker:"Nagasaki",cls:"Motorcycles",price:40000,speed:77.8,accel:75.0,braking:43.3,handling:65.2},
+  {id:"bf400",name:"BF400",maker:"Nagasaki",cls:"Motorcycles",price:95000,speed:77.8,accel:72.5,braking:36.7,handling:65.2},
+  {id:"bati801rr",name:"Bati 801RR",maker:"Pegassi",cls:"Motorcycles",price:15000,speed:80.5,accel:75.0,braking:46.7,handling:70.3},
+  {id:"bati801",name:"Bati 801",maker:"Pegassi",cls:"Motorcycles",price:15000,speed:80.5,accel:75.0,braking:46.7,handling:70.3},
+  {id:"bagger",name:"Bagger",maker:"Western",cls:"Motorcycles",price:16000,speed:69.8,accel:52.5,braking:40.0,handling:50.0},
+  {id:"avarus",name:"Avarus",maker:"LCC",cls:"Motorcycles",price:116000,speed:72.4,accel:67.5,braking:33.3,handling:56.1},
+  {id:"akuma",name:"Akuma",maker:"Dinka",cls:"Motorcycles",price:9000,speed:77.8,accel:100.0,braking:40.0,handling:65.2},
+  {id:"rhinotank",name:"Rhino Tank",maker:"",cls:"Military",price:1500000,speed:29.5,accel:27.5,braking:6.7,handling:75.8},
+  {id:"halftrack",name:"Half-track",maker:"Bravado",cls:"Military",price:2254350,speed:40.2,accel:40.0,braking:6.7,handling:69.7},
+  {id:"crusader",name:"Crusader",maker:"Canis",cls:"Military",price:225000,speed:69.8,accel:45.0,braking:10.0,handling:57.6},
+  {id:"barracks",name:"Barracks",maker:"HVY",cls:"Military",price:450000,speed:59.0,accel:27.5,braking:10.0,handling:50.0},
+  {id:"apctank",name:"APC Tank",maker:"HVY",cls:"Military",price:3092250,speed:52.0,accel:52.5,braking:6.7,handling:72.7},
+  {id:"guardian",name:"Guardian",maker:"Vapid",cls:"Industrial",price:375000,speed:69.8,accel:52.5,braking:20.0,handling:60.6},
+  {id:"dump",name:"Dump",maker:"HVY",cls:"Industrial",price:1000000,speed:18.8,accel:40.0,braking:10.0,handling:43.9},
+  {id:"policeprisonbus",name:"Police Prison Bus",maker:"Vapid",cls:"Emergency",price:731500,speed:48.3,accel:35.0,braking:8.3,handling:40.9},
+  {id:"lifeguardgranger",name:"Lifeguard Granger",maker:"Declasse",cls:"Emergency",price:865000,speed:75.1,accel:50.0,braking:26.7,handling:62.1},
+  {id:"firetruck",name:"Fire Truck",maker:"MTL",cls:"Emergency",price:3295000,speed:69.8,accel:40.0,braking:16.7,handling:51.5},
+  {id:"whippetracebike",name:"Whippet Race Bike",maker:"",cls:"Cycles",price:10000,speed:33.8,accel:16.9,braking:41.7,handling:28.0},
+  {id:"tricyclesracebike",name:"Tri-Cycles Race Bike",maker:"",cls:"Cycles",price:10000,speed:33.8,accel:16.9,braking:41.7,handling:28.0},
+  {id:"scorcher",name:"Scorcher",maker:"",cls:"Cycles",price:2000,speed:29.5,accel:21.2,braking:46.7,handling:31.1},
+  {id:"endurexracebike",name:"Endurex Race Bike",maker:"",cls:"Cycles",price:10000,speed:33.8,accel:16.9,braking:41.7,handling:28.0},
+  {id:"cruiser",name:"Cruiser",maker:"",cls:"Cycles",price:800,speed:24.1,accel:10.0,braking:46.7,handling:27.3},
+  {id:"bmx",name:"BMX",maker:"",cls:"Cycles",price:800,speed:26.8,accel:20.0,braking:50.0,handling:28.0},
+  {id:"zioncabrio",name:"Zion Cabrio",maker:"Übermacht",cls:"Coupes",price:65000,speed:77.8,accel:55.0,braking:30.0,handling:78.8},
+  {id:"zion",name:"Zion",maker:"Übermacht",cls:"Coupes",price:60000,speed:77.8,accel:55.0,braking:30.0,handling:78.8},
+  {id:"windsordrop",name:"Windsor Drop",maker:"Enus",cls:"Coupes",price:900000,speed:80.5,accel:69.8,braking:23.3,handling:66.7},
+  {id:"windsor",name:"Windsor",maker:"Enus",cls:"Coupes",price:845000,speed:80.5,accel:70.0,braking:23.3,handling:66.7},
+  {id:"sentinelxs",name:"Sentinel XS",maker:"Übermacht",cls:"Coupes",price:60000,speed:76.2,accel:52.5,braking:30.0,handling:74.2},
+  {id:"sentinel",name:"Sentinel",maker:"Übermacht",cls:"Coupes",price:95000,speed:76.2,accel:52.5,braking:30.0,handling:74.2},
+  {id:"oraclexs",name:"Oracle XS",maker:"Übermacht",cls:"Coupes",price:82000,speed:80.5,accel:65.0,braking:30.0,handling:68.2},
+  {id:"oracle",name:"Oracle",maker:"Übermacht",cls:"Coupes",price:80000,speed:80.5,accel:67.5,braking:30.0,handling:68.2},
+  {id:"jackal",name:"Jackal",maker:"Ocelot",cls:"Coupes",price:60000,speed:76.5,accel:55.0,braking:30.0,handling:78.8},
+  {id:"felongt",name:"Felon GT",maker:"Lampadati",cls:"Coupes",price:95000,speed:77.8,accel:60.0,braking:30.0,handling:75.8},
+  {id:"felon",name:"Felon",maker:"Lampadati",cls:"Coupes",price:90000,speed:77.8,accel:60.0,braking:30.0,handling:77.3},
+  {id:"f620",name:"F620",maker:"Ocelot",cls:"Coupes",price:80000,speed:77.8,accel:60.0,braking:30.0,handling:75.8},
+  {id:"exemplar",name:"Exemplar",maker:"Dewbauchee",cls:"Coupes",price:205000,speed:77.8,accel:65.0,braking:30.0,handling:78.8},
+  {id:"cognoscenticabrio",name:"Cognoscenti Cabrio",maker:"Enus",cls:"Coupes",price:185000,speed:77.8,accel:65.0,braking:20.0,handling:69.7},
+  {id:"rhapsody",name:"Rhapsody",maker:"Declasse",cls:"Compacts",price:140000,speed:71.4,accel:57.5,braking:20.0,handling:62.1},
+  {id:"prairie",name:"Prairie",maker:"Bollokan",cls:"Compacts",price:25000,speed:72.4,accel:55.0,braking:20.0,handling:59.1},
+  {id:"panto",name:"Panto",maker:"Benefactor",cls:"Compacts",price:85000,speed:70.8,accel:67.5,braking:20.0,handling:59.7},
+  {id:"issi",name:"Issi",maker:"Weeny",cls:"Compacts",price:18000,speed:72.4,accel:57.5,braking:20.0,handling:62.1},
+  {id:"dilettante",name:"Dilettante",maker:"Karin",cls:"Compacts",price:25000,speed:69.8,accel:25.0,braking:20.0,handling:53.3},
+  {id:"briosora",name:"Brioso R/A",maker:"Grotti",cls:"Compacts",price:155000,speed:72.4,accel:72.5,braking:20.0,handling:69.7},
+  {id:"stockade",name:"Stockade",maker:"Brute",cls:"Commercial",price:2240000,speed:64.4,accel:30.0,braking:8.3,handling:50.0},
+  {id:"phantomwedge",name:"Phantom Wedge",maker:"JoBuilt",cls:"Commercial",price:2553600,speed:69.8,accel:75.0,braking:28.3,handling:59.1},
+  {id:"phantomcustom",name:"Phantom Custom",maker:"JoBuilt",cls:"Commercial",price:1225000,speed:69.8,accel:75.0,braking:28.3,handling:62.1},
+  {id:"mule",name:"Mule",maker:"Maibatsu",cls:"Commercial",price:27000,speed:53.7,accel:27.5,braking:8.3,handling:45.5},
+  {id:"haulercustom",name:"Hauler Custom",maker:"JoBuilt",cls:"Commercial",price:1400000,speed:69.8,accel:80.0,braking:28.3,handling:59.1},
+];
+window.CLASSES = ["Commercial", "Compacts", "Coupes", "Cycles", "Emergency", "Industrial", "Military", "Motorcycles", "Muscle", "Off-Road", "Open Wheel", "Planes", "Remote Control", "SUVs", "Sedans", "Service", "Sports", "Sports Classics", "Super", "Utility", "Vans"];
+
+  </script>
+  <script type="text/babel" data-presets="react">
+/* ============================================================
+   Shared utilities & primitives
+   ============================================================ */
+
+const { useState, useEffect, useRef, useMemo, useCallback } = React;
+
+/* ---------- Format helpers ---------- */
+function fmtPrice(n) {
+  if (n >= 1000000) return "$" + (n / 1000000).toFixed(n % 1000000 === 0 ? 0 : 2) + "M";
+  if (n >= 1000) return "$" + (n / 1000).toFixed(0) + "K";
+  return "$" + n.toLocaleString();
+}
+function fmtPriceFull(n) {
+  return "$" + n.toLocaleString();
+}
+function pad(n, width) {
+  return String(n).padStart(width, "0");
+}
+
+/* ---------- Car Render placeholder ---------- */
+function CarRender({ code, status = "READY", angle = "3/4 FRONT" }) {
+  return (
+    <div className="car-render">
+      <span className="tick tl"></span>
+      <span className="tick tr"></span>
+      <span className="tick bl"></span>
+      <span className="tick br"></span>
+      <div className="render-label">
+        <span>[ CAR RENDER</span>
+        <span className="br">//</span>
+        <span>{code}</span>
+        <span>]</span>
+      </div>
+      <div className="render-meta">
+        <span>{angle}</span>
+        <span className="ok">● {status}</span>
+      </div>
+    </div>
+  );
+}
+
+/* ---------- Scrubber (price/speed/handling/braking) ---------- */
+function Scrubber({ icon, label, min, max, step = 1, value, onChange, format, ticks = 10 }) {
+  const trackRef = useRef(null);
+  const [dragging, setDragging] = useState(false);
+  const pct = ((value - min) / (max - min)) * 100;
+
+  const handleMove = useCallback((clientX) => {
+    const el = trackRef.current; if (!el) return;
+    const r = el.getBoundingClientRect();
+    const ratio = Math.min(1, Math.max(0, (clientX - r.left) / r.width));
+    const raw = min + ratio * (max - min);
+    const stepped = Math.round(raw / step) * step;
+    onChange(Math.min(max, Math.max(min, stepped)));
+  }, [min, max, step, onChange]);
+
+  useEffect(() => {
+    if (!dragging) return;
+    const onMove = (e) => handleMove(e.clientX);
+    const onUp = () => setDragging(false);
+    window.addEventListener("pointermove", onMove);
+    window.addEventListener("pointerup", onUp);
+    return () => {
+      window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("pointerup", onUp);
+    };
+  }, [dragging, handleMove]);
+
+  const tickEls = [];
+  for (let i = 0; i <= ticks; i++) {
+    tickEls.push(<span key={i} style={{ left: `${(i / ticks) * 100}%` }}></span>);
+  }
+
+  return (
+    <div className="scrubber">
+      <div className="hd">
+        <div className="hd-l">
+          <div className="icon">{icon}</div>
+          <div className="name">{label}</div>
+        </div>
+        <div className="value">{format ? format(value) : value}</div>
+      </div>
+      <div
+        className="range-track"
+        ref={trackRef}
+        onPointerDown={(e) => { setDragging(true); handleMove(e.clientX); }}
+      >
+        <div className="axis"></div>
+        <div className="axis-fill" style={{ width: `${pct}%` }}></div>
+        <div className="ticks">{tickEls}</div>
+        <div className="handle" style={{ left: `${pct}%` }}></div>
+      </div>
+      <div className="scale-min-max">
+        <span>{format ? format(min) : min}</span>
+        <span>{format ? format(max) : max}</span>
+      </div>
+    </div>
+  );
+}
+
+/* Reveal-on-scroll wrapper */
+function Reveal({ children, delay = 0, as: As = "div", className = "" }) {
+  const ref = useRef(null);
+  const [seen, setSeen] = useState(false);
+  useEffect(() => {
+    const io = new IntersectionObserver(([e]) => {
+      if (e.isIntersecting) { setSeen(true); io.disconnect(); }
+    }, { threshold: 0, rootMargin: "0px 0px -10% 0px" });
+    if (ref.current) io.observe(ref.current);
+    return () => io.disconnect();
+  }, []);
+  return (
+    <As ref={ref} className={`reveal ${seen ? "in" : ""} ${className}`} style={{ transitionDelay: `${delay}ms` }}>
+      {children}
+    </As>
+  );
+}
+
+Object.assign(window, { fmtPrice, fmtPriceFull, pad, CarRender, Scrubber, Reveal });
+
+/* ============================================================
+   Section 1: Hero
+   Section 2: Paradox
+   ============================================================ */
+
+function TopBar({ active }) {
+  const items = [
+    { id: "hero",      label: "01 / Overview" },
+    { id: "paradox",   label: "02 / Paradox" },
+    { id: "classes",   label: "03 / Classes" },
+    { id: "discovery", label: "04 / Discovery" },
+  ];
+  const go = (id) => {
+    const el = document.getElementById(id);
+    if (el) window.scrollTo({ top: el.offsetTop - 56, behavior: "smooth" });
+  };
+  return (
+    <header className="topbar">
+      <div className="brand">
+        <span className="dot"></span>
+        <span>Velocity Index</span>
+        <span className="sub">/ V.5.0426</span>
+      </div>
+      <nav>
+        {items.map(i => (
+          <a key={i.id} className={active === i.id ? "active" : ""} onClick={() => go(i.id)}>
+            {i.label}
+          </a>
+        ))}
+      </nav>
+      <div className="meta">DB-NODE / 612 VEH ◦ INDEXED</div>
+    </header>
+  );
+}
+
+function Hero({ onBegin }) {
+  const ref = useRef(null);
+  useEffect(() => {
+    const io = new IntersectionObserver(([e]) => {
+      if (e.isIntersecting) ref.current?.classList.add("in-view");
+    }, { threshold: 0.3 });
+    if (ref.current) io.observe(ref.current);
+    return () => io.disconnect();
+  }, []);
+
+  return (
+    <section id="hero" className="hero" ref={ref}>
+      <div className="hero-stage">
+        <div className="hero-headline">
+          <div>
+            <div className="eyebrow" style={{ marginBottom: 24 }}>An investigation in 4 parts</div>
+            <h1>
+              Is the <span className="strike">most expensive</span><br/>
+              car actually <span className="accent">the best?</span>
+            </h1>
+            <p>
+              An evidence-based dive through 612 vehicles in the Velocity Index database — comparing
+              sticker price against measured performance to find the cars that quietly outperform their
+              showroom rivals.
+            </p>
+          </div>
+        </div>
+        <div className="hero-car">
+          <CarRender code="RUINER2000 / IMP-M2K" angle="EXTERIOR / 3-4 FRONT" status="LIVE" />
+          <div className="hero-bubble b1">
+            <span className="lbl">Sticker price</span>
+            <span className="hot">$5,745,600</span>
+          </div>
+          <div className="hero-bubble b2">
+            <span className="lbl">Top speed score</span>
+            <span className="accent">81.6 / 100</span>
+          </div>
+          <div className="hero-bubble b3">
+            <span className="lbl">Same speed for</span>
+            <span className="hot">$95K</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="hero-cta">
+        <button className="cta-btn" onClick={onBegin}>
+          <span>Begin Discovery</span>
+          <span className="arrow">→</span>
+        </button>
+        <div className="cta-side">
+          <div className="stat">VEHICLES INDEXED <strong className="mono">546</strong></div>
+          <div className="stat">PRICE SPREAD <strong className="mono">$800 – $10M</strong></div>
+          <div className="stat">METRICS / CAR <strong className="mono">14</strong></div>
+          <div className="stat">LAST UPDATED <strong className="mono">26.04.05</strong></div>
+        </div>
+      </div>
+
+      <div className="hero-scroll-hint">
+        <span>Scroll</span>
+        <span className="line"></span>
+      </div>
+    </section>
+  );
+}
+
+/* ---------- Section 2: Paradox ---------- */
+function ParadoxBar({ label, value, max = 100, tied = false, delay = 0 }) {
+  const [w, setW] = useState(0);
+  const ref = useRef(null);
+  useEffect(() => {
+    const io = new IntersectionObserver(([e]) => {
+      if (e.isIntersecting) {
+        setTimeout(() => setW((value / max) * 100), delay);
+        io.disconnect();
+      }
+    }, { threshold: 0.4 });
+    if (ref.current) io.observe(ref.current);
+    return () => io.disconnect();
+  }, [value, max, delay]);
+  return (
+    <div className={`stat-bar ${tied ? "tied" : ""}`} ref={ref}>
+      <span className="label">{label}</span>
+      <span className="track"><span className="fill" style={{ width: `${w}%` }}></span></span>
+      <span className="num">{value}</span>
+    </div>
+  );
+}
+
+function ParadoxCard({ car, accentTied }) {
+  return (
+    <div className="paradox-card">
+      <div className="row">
+        <div>
+          <div className="maker">{car.maker} / {car.cls}</div>
+          <div className="name" style={{ marginTop: 6 }}>{car.name}</div>
+        </div>
+        <div className="price">{fmtPriceFull(car.price)}</div>
+      </div>
+      <div className="render">
+        <CarRender code={car.id.toUpperCase()} status="DB-MATCH" />
+      </div>
+      <div className="stats">
+        <ParadoxBar label="Top Speed"  value={car.speed}    tied={accentTied.includes("speed")} delay={0}   />
+        <ParadoxBar label="Accel"      value={car.accel}    tied={accentTied.includes("accel")} delay={120} />
+        <ParadoxBar label="Handling"   value={car.handling} tied={accentTied.includes("handling")} delay={240} />
+        <ParadoxBar label="Braking"    value={car.braking}  tied={accentTied.includes("braking")} delay={360} />
+      </div>
+    </div>
+  );
+}
+
+function Paradox() {
+  const cars = window.VEHICLES;
+  const x80 = cars.find(c => c.id === "ruiner2000");
+  const banshee = cars.find(c => c.id === "elegyrh8");
+  const tied = [];
+  if (x80.speed === banshee.speed) tied.push("speed");
+  if (x80.accel === banshee.accel) tied.push("accel");
+  const delta = x80.price - banshee.price;
+  const ratio = (x80.price / banshee.price).toFixed(1);
+
+  return (
+    <section id="paradox" className="paradox">
+      <div className="section-head">
+        <div>
+          <div className="index">02 / Price · Performance</div>
+          <Reveal as="h2">The price-performance paradox.</Reveal>
+        </div>
+        <Reveal as="p" className="lede" delay={120}>
+          Two vehicles. A <span className="mono">$5.6M</span> price gap. Identical top speed and acceleration.
+          When the spreadsheet matches but the showroom doesn't, the rest of the story is what you're
+          actually paying for.
+        </Reveal>
+      </div>
+
+      <Reveal>
+        <div className="paradox-grid">
+          <ParadoxCard car={x80} accentTied={tied} />
+          <div className="paradox-divider"><div className="vs">VS</div></div>
+          <ParadoxCard car={banshee} accentTied={tied} />
+        </div>
+      </Reveal>
+
+      <Reveal delay={200}>
+        <div className="paradox-takeaway">
+          <span className="badge">Key Finding</span>
+          <p className="copy">
+            Both vehicles register a <span className="mono">Speed score of 81.6</span> and identical acceleration. The Ruiner 2000 is
+            priced at <span className="mono">{ratio}×</span> the Elegy RH8 — a
+            <span className="mono"> {fmtPriceFull(delta)}</span> premium for measurably equivalent
+            top-end performance. The remainder is special abilities, brand, and intangible status.
+          </p>
+          <span className="delta">+{fmtPrice(delta)}</span>
+        </div>
+      </Reveal>
+    </section>
+  );
+}
+
+Object.assign(window, { TopBar, Hero, Paradox });
+
+/* ============================================================
+   Section 3: Class Discrepancy
+   Section 4: Discovery Tool (Asphalt 8 inspired)
+   ============================================================ */
+
+function Classes() {
+  const [cls, setCls] = useState("All");
+  const [metric] = useState("speed");
+  const tabs = ["All", ...window.CLASSES];
+
+  const filtered = useMemo(() => {
+    const list = cls === "All" ? window.VEHICLES : window.VEHICLES.filter(c => c.cls === cls);
+    return [...list].sort((a, b) => b[metric] - a[metric]).slice(0, 10);
+  }, [cls, metric]);
+
+  const byClass = useMemo(() => {
+    if (cls !== "All") return null;
+    return window.CLASSES.map(c => {
+      const top = [...window.VEHICLES.filter(v => v.cls === c)].sort((a,b) => b[metric] - a[metric])[0];
+      return top;
+    }).filter(Boolean).sort((a,b) => b[metric] - a[metric]);
+  }, [cls, metric]);
+
+  const rows = byClass || filtered;
+  const max = Math.max(...rows.map(r => r[metric]));
+
+  return (
+    <section id="classes" className="classes">
+      <div className="section-head">
+        <div>
+          <div className="index">03 / Class Breakdown</div>
+          <Reveal as="h2">Class is not a synonym for fast.</Reveal>
+        </div>
+        <Reveal as="p" className="lede" delay={120}>
+          Sport-class vehicles routinely match — and occasionally exceed — Super-class top speeds at a
+          fraction of the price. Filter by class to see the leaderboard.
+        </Reveal>
+      </div>
+
+      <Reveal>
+        <div className="class-toolbar">
+          <div className="class-tabs">
+            {tabs.map(t => (
+              <button key={t} className={cls === t ? "active" : ""} onClick={() => setCls(t)}>
+                {t === "All" ? "Fastest by Class" : t}
+              </button>
+            ))}
+          </div>
+          <div className="class-meta">
+            METRIC · TOP SPEED · DESC ◦ {rows.length} ROWS
+          </div>
+        </div>
+      </Reveal>
+
+      <Reveal>
+        <div className="class-rows">
+          {rows.map((r, i) => (
+            <div key={r.id} className={`class-row ${i === 0 ? "leader" : ""}`}>
+              <span className="rank">{pad(i + 1, 2)}</span>
+              <div>
+                <div className="name">{r.name}</div>
+                <span className="maker-cls">{r.maker} · {r.cls}</span>
+              </div>
+              <div className="bar-wrap">
+                {[20,40,60,80].map(p => <span key={p} className="bar-mark" style={{ left: `${p}%` }}></span>)}
+                <span className="bar-fill" style={{ width: `${(r[metric] / max) * 100}%` }}></span>
+              </div>
+              <span className="top">{r[metric]}</span>
+              <span className="price">{fmtPriceFull(r.price)}</span>
+            </div>
+          ))}
+        </div>
+      </Reveal>
+    </section>
+  );
+}
+
+/* ---------- Radar chart ---------- */
+function RadarChart({ car }) {
+  if (!car) return null;
+  const stats = [
+    { key: "speed", label: "SPEED", value: car.speed },
+    { key: "accel", label: "ACCEL", value: car.accel },
+    { key: "handling", label: "HAND", value: car.handling },
+    { key: "braking", label: "BRAKE", value: car.braking },
+  ];
+  const cx = 150, cy = 150, R = 110;
+  const angle = (i) => (-Math.PI / 2) + (i * 2 * Math.PI / stats.length);
+  const point = (i, v) => {
+    const r = R * (v / 100);
+    return [cx + r * Math.cos(angle(i)), cy + r * Math.sin(angle(i))];
+  };
+  const labelPos = (i) => {
+    const r = R + 22;
+    return [cx + r * Math.cos(angle(i)), cy + r * Math.sin(angle(i))];
+  };
+  const valPos = (i, v) => {
+    const r = R * (v / 100) + 10;
+    return [cx + r * Math.cos(angle(i)), cy + r * Math.sin(angle(i))];
+  };
+  const pts = stats.map((s, i) => point(i, s.value));
+  const polyPts = pts.map(p => p.join(",")).join(" ");
+
+  return (
+    <svg viewBox="0 0 300 300">
+      {/* concentric grid */}
+      {[0.25, 0.5, 0.75, 1].map((s, i) => (
+        <polygon
+          key={i}
+          className={i === 3 ? "radar-grid-strong" : "radar-grid"}
+          points={stats.map((_, j) => {
+            const r = R * s;
+            return [cx + r * Math.cos(angle(j)), cy + r * Math.sin(angle(j))].join(",");
+          }).join(" ")}
+        />
+      ))}
+      {/* axes */}
+      {stats.map((_, i) => {
+        const [x, y] = point(i, 100);
+        return <line key={i} className="radar-axis" x1={cx} y1={cy} x2={x} y2={y} />;
+      })}
+      {/* data fill */}
+      <polygon className="radar-fill" points={polyPts} />
+      {/* points */}
+      {pts.map(([x, y], i) => <circle key={i} className="radar-point" cx={x} cy={y} r="3" />)}
+      {/* labels */}
+      {stats.map((s, i) => {
+        const [lx, ly] = labelPos(i);
+        const [vx, vy] = valPos(i, s.value);
+        return (
+          <g key={s.key}>
+            <text className="radar-label" x={lx} y={ly} textAnchor="middle" dominantBaseline="middle">{s.label}</text>
+            <text className="radar-num" x={vx} y={vy} textAnchor="middle" dominantBaseline="middle">{s.value}</text>
+          </g>
+        );
+      })}
+    </svg>
+  );
+}
+
+/* ---------- Discovery ---------- */
+const DEFAULTS = {
+  priceMax: 5000000,
+  speedMin: 0,
+  handlingMin: 0,
+  brakingMin: 0,
+};
+
+function Discovery() {
+  const [s, setS] = useState(DEFAULTS);
+  const [sortBy, setSortBy] = useState("value");
+  const [selectedId, setSelectedId] = useState(null);
+
+  const update = (k, v) => setS(prev => ({ ...prev, [k]: v }));
+  const reset = () => { setS(DEFAULTS); setSelectedId(null); };
+
+  const results = useMemo(() => {
+    const filtered = window.VEHICLES.filter(c =>
+      c.price <= s.priceMax &&
+      c.speed >= s.speedMin &&
+      c.handling >= s.handlingMin &&
+      c.braking >= s.brakingMin
+    ).map(c => ({
+      ...c,
+      value: ((c.speed + c.handling + c.braking) / 3) / Math.max(0.05, c.price / 1000000)
+    }));
+
+    if (sortBy === "value") filtered.sort((a, b) => b.value - a.value);
+    else if (sortBy === "price") filtered.sort((a, b) => a.price - b.price);
+    else if (sortBy === "speed") filtered.sort((a, b) => b.speed - a.speed);
+    return filtered;
+  }, [s, sortBy]);
+
+  // Auto-select best when filters change & user hasn't picked
+  const selected = useMemo(() => {
+    if (selectedId) {
+      const m = results.find(r => r.id === selectedId);
+      if (m) return m;
+    }
+    return results[0];
+  }, [results, selectedId]);
+
+  // Reset selected when it falls out of filter
+  useEffect(() => {
+    if (selectedId && !results.find(r => r.id === selectedId)) setSelectedId(null);
+  }, [results, selectedId]);
+
+  return (
+    <section id="discovery" className="discovery">
+      <div className="discovery-head">
+        <div>
+          <div className="index">04 / The Discovery Tool</div>
+          <Reveal as="h2">Build your scale.<br/>Meet your match.</Reveal>
+        </div>
+        <Reveal as="p" className="lede" delay={120}>
+          Set the budget. Set the floor on speed, handling, and braking. The hero car updates live to
+          your <span className="mono" style={{ color: "var(--hot)" }}>Best Value</span> match — the
+          highest avg performance per dollar — with all alternatives below.
+        </Reveal>
+      </div>
+
+      <Reveal>
+        <div className="discovery-shell">
+          {/* STAGE: centerpiece car + radar */}
+          <div className="stage-row">
+            <div className="centerpiece">
+              <div className="cp-meta">
+                <div className="cp-tag"><span className="pulse"></span> Best Value Match</div>
+                <div className="cp-id">{selected ? `ID · ${selected.id.toUpperCase()}` : "—"}</div>
+              </div>
+
+              <div className="cp-stage">
+                {selected ? (
+                  <div className="cp-render" key={selected.id}>
+                    <CarRender code={selected.id.toUpperCase()} status="LIVE MATCH" angle="HERO / 3-4 FRONT" />
+                    <div className="cp-bubble top-left">
+                      <span className="accent">SPD</span>{selected.speed}
+                    </div>
+                    <div className="cp-bubble top-right">
+                      <span className="accent">HND</span>{selected.handling}
+                    </div>
+                    <div className="cp-bubble bot-left">
+                      <span className="accent">BRK</span>{selected.braking}
+                    </div>
+                  </div>
+                ) : (
+                  <div style={{ fontFamily: "var(--mono)", color: "var(--text-3)", fontSize: 12, letterSpacing: "0.2em", textTransform: "uppercase" }}>
+                    — No match in current scale —
+                  </div>
+                )}
+              </div>
+
+              <div className="cp-foot">
+                <div>
+                  <div className="cp-maker">{selected ? `${selected.maker} · ${selected.cls}` : "—"}</div>
+                  <div className="cp-name">{selected ? selected.name : "Adjust filters"}</div>
+                </div>
+                <div className="cp-price-block">
+                  <div className="cp-price-lbl">Sticker</div>
+                  <div className="cp-price">{selected ? fmtPrice(selected.price) : "—"}</div>
+                  <div className="cp-vps">{selected ? `${selected.value.toFixed(1)} score / $M` : ""}</div>
+                </div>
+              </div>
+            </div>
+
+            {/* RIGHT: spec / radar */}
+            <div className="spec-panel">
+              <div className="spec-head">
+                <span className="title">Performance Profile</span>
+                <span className="sub">0–100 INDEX</span>
+              </div>
+              <div className="radar-wrap">
+                <RadarChart car={selected} />
+              </div>
+              <div className="spec-stats">
+                <div className="ss"><span className="l">Top Speed</span><span className="v">{selected ? selected.speed : "—"}</span></div>
+                <div className="ss"><span className="l">Accel</span><span className="v">{selected ? selected.accel : "—"}</span></div>
+                <div className="ss"><span className="l">Handling</span><span className="v">{selected ? selected.handling : "—"}</span></div>
+                <div className="ss"><span className="l">Braking</span><span className="v">{selected ? selected.braking : "—"}</span></div>
+              </div>
+            </div>
+          </div>
+
+          {/* SLIDERS row */}
+          <div className="slider-row">
+            <div className="slider-head-block">
+              <span className="t">Configure your scale</span>
+              <button className="reset" onClick={reset}>Reset filters</button>
+            </div>
+            <Scrubber icon="$" label="Max Price" min={0} max={10000000} step={100000}
+              value={s.priceMax} onChange={v => update("priceMax", v)} format={fmtPrice} ticks={10} />
+            <Scrubber icon="V" label="Min Speed" min={0} max={100} step={1}
+              value={s.speedMin} onChange={v => update("speedMin", v)} ticks={10} />
+            <Scrubber icon="H" label="Min Handling" min={0} max={100} step={1}
+              value={s.handlingMin} onChange={v => update("handlingMin", v)} ticks={10} />
+            <Scrubber icon="B" label="Min Braking" min={0} max={100} step={1}
+              value={s.brakingMin} onChange={v => update("brakingMin", v)} ticks={10} />
+          </div>
+
+          {/* ALTERNATIVES */}
+          <div className="alt-row">
+            <div className="alt-head">
+              <span className="t">Alternatives in scale</span>
+              <span className="meta"><strong>{pad(results.length, 2)}</strong> matches · sorted by {sortBy}</span>
+              <div className="sort">
+                {["value", "price", "speed"].map(k => (
+                  <button key={k} className={sortBy === k ? "active" : ""} onClick={() => setSortBy(k)}>
+                    {k}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="alt-grid">
+              {results.length === 0 && <div className="empty">— No vehicles match the current scale —</div>}
+              {results.map((c, i) => (
+                <AltCard
+                  key={c.id}
+                  car={c}
+                  idx={i}
+                  selected={selected && selected.id === c.id}
+                  onClick={() => setSelectedId(c.id)}
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+      </Reveal>
+    </section>
+  );
+}
+
+function AltCard({ car, idx, selected, onClick }) {
+  return (
+    <div
+      className={`alt-card ${selected ? "selected" : ""}`}
+      style={{ animationDelay: `${Math.min(idx * 14, 240)}ms` }}
+      onClick={onClick}
+    >
+      <div className="alt-render">
+        <CarRender code={car.id.toUpperCase()} status="MATCH" angle="" />
+      </div>
+      <div className="alt-name">{car.name}</div>
+      <div className="alt-row-meta">
+        <span className="alt-cls">{car.cls}</span>
+        <span className="alt-price">{fmtPrice(car.price)}</span>
+      </div>
+      <div className="alt-stats">
+        <span className="x"><b>S</b>{car.speed}</span>
+        <span className="x"><b>H</b>{car.handling}</span>
+        <span className="x"><b>B</b>{car.braking}</span>
+      </div>
+    </div>
+  );
+}
+
+Object.assign(window, { Classes, Discovery, AltCard, RadarChart });
+
+/* ============================================================
+   App Root — orchestrates sections + active-section nav state
+   ============================================================ */
+
+function App() {
+  const [active, setActive] = useState("hero");
+
+  useEffect(() => {
+    const ids = ["hero", "paradox", "classes", "discovery"];
+    const onScroll = () => {
+      const y = window.scrollY + 120;
+      let cur = ids[0];
+      for (const id of ids) {
+        const el = document.getElementById(id);
+        if (el && el.offsetTop <= y) cur = id;
+      }
+      setActive(cur);
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  const begin = () => {
+    const el = document.getElementById("paradox");
+    if (el) window.scrollTo({ top: el.offsetTop - 56, behavior: "smooth" });
+  };
+
+  return (
+    <>
+      <div className="scanline"></div>
+      <TopBar active={active} />
+      <main>
+        <Hero onBegin={begin} />
+        <Paradox />
+        <Classes />
+        <Discovery />
+      </main>
+      <footer className="foot">
+        <span>VELOCITY INDEX · DB-NODE / 546 VEHICLES</span>
+        <span>BUILD 5.0426 · INTERNAL RESEARCH USE</span>
+      </footer>
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+
+  </script>
+</body>
+</html>
