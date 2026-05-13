@@ -68,6 +68,11 @@ body {
   width: 8px; height: 8px; background: var(--accent); border-radius: 1px;
   box-shadow: 0 0 12px var(--accent-glow);
 }
+.topbar .brand-v-logo {
+  height: 24px; width: auto; object-fit: contain;
+  vertical-align: middle; position: relative; top: -1px;
+  filter: drop-shadow(0 0 6px rgba(100,220,80,0.5));
+}
 .topbar .brand .sub {
   color: var(--text-2); font-weight: 500; letter-spacing: 0.06em;
 }
@@ -1410,12 +1415,48 @@ function pad(n, width) {
 }
 
 /* ---------- Car image URLs ---------- */
+/* GTA V internal spawn name → GitHub repo filename (for vehicles whose data ID
+   doesn't match the repo's naming convention) */
+const GH_MAP = {
+  "190z":"z190","apctank":"apc","ballerii":"baller2","bati801rr":"bati2",
+  "blistakanjo":"blista3","boxvillepostop":"boxville5","briosora":"brioso2",
+  "bruiserarena":"bruiser2","brutusarena":"brutus2","bugstarsburrito":"burrito4",
+  "burgershotstallion":"buffalo3","cavalcadeii":"cavalcade2","cerberusarena":"cerberus2",
+  "cheetahclassic":"cheetah2","cognoscenti55":"cognoscenti2","coquetteclassic":"coquette3",
+  "coquetteclassictople":"coquette4","daemoncustom":"daemon2","deathbikearena":"deathbike2",
+  "diaboluscustom":"diablous2","dominatorarena":"dominator5","dominatorgtt":"dominator4",
+  "drifttampa":"tampa2","dukeodeath":"dukes2","faggiomod":"faggio3","faggiosport":"faggio2",
+  "fcr1000":"fcr","fcr1000custom":"fcr2","felongt":"felon2","haulercustom":"hauler2",
+  "impalerarena":"impaler2","imperatorarena":"imperator2","infernusclassic":"infernus2",
+  "invadeandpersuaderct":"rcbandito","issiarena":"issi4","jb700w":"jb7002",
+  "jesterclassic":"jester4","liberator":"monster3","manchezscout":"manchez2",
+  "michelligt":"michelli","nebulaturbo":"nebula","oppressormkii":"oppressor2",
+  "oraclexs":"oracle2","peyotecustom":"peyote2","peyotegasser":"peyote3",
+  "phantomwedge":"phantom2","piwasserdominator":"dominator3","primocustom":"primo2",
+  "rampantrockettricycl":"rrocket","rapidgtcabrio":"rapidgt2","rapidgtclassic":"rapidgt3",
+  "redwoodgauntlet":"gauntlet2","retinuemkii":"retinue2","romerohearse":"romero",
+  "roosevelt":"lurcher","rustyrebel":"rebel2","sasquatcharena":"sasquatch",
+  "scarabarena":"scarab2","schafterlwb":"schafter3","schafterlwbarmored":"schafter5",
+  "schafterv12":"schafter2","schafterv12armored":"schafter4","sentinelxs":"sentinel2",
+  "slamvanarena":"slamvan4","slamvancustom":"slamvan2","sprunkbuffalo":"buffalo2",
+  "stingertopless":"stingergt","superdiamond":"superd","tm02khanjalitank":"khanjali",
+  "tornadocustom":"tornado4","tornadoratrod":"tornado5","turismoclassic":"turismo2",
+  "turretedlimo":"limo2","vetoclassicgokart":"veto","vetomoderngokart":"veto2",
+  "weaponizedtampa":"tampa3","windsordrop":"windsor2","zionclassic":"zion3",
+  "zombiebobber":"zombieb","zombiechopper":"zombiea","zr380arena":"zr3802",
+};
+/* GTABase uses shorter slugs for some vehicles (e.g. strips "(Formula 1 Car)" suffix) */
+const GB_SLUG = {
+  "dr1indycar":"dr1","br8formula1car":"br8","pr4formula1car":"pr4","r88formula1car":"r88",
+};
+
 function vehicleImgGithub(car) {
-  return `https://raw.githubusercontent.com/MericcaN41/gta5carimages/main/images/${car.id}.png`;
+  const repoId = GH_MAP[car.id] || car.id;
+  return `https://raw.githubusercontent.com/MericcaN41/gta5carimages/main/images/${repoId}.png`;
 }
 function vehicleImgGtabase(car) {
   const cls = car.cls.toLowerCase().replace(/\s+/g, '-');
-  const name = car.name.toLowerCase()
+  const name = GB_SLUG[car.id] || car.name.toLowerCase()
     .replace(/\s+/g, '-')
     .replace(/[()]/g, '')
     .replace(/-+/g, '-')
@@ -1560,7 +1601,7 @@ function TopBar({ active }) {
     <header className="topbar">
       <div className="brand">
         <span className="dot"></span>
-        <span>Velocity Index</span>
+        <span><img src="https://www.vhv.rs/dpng/d/63-633301_gta-v-logo-hd-png-download.png" alt="V" className="brand-v-logo" referrerPolicy="no-referrer" />elocity Index</span>
         <span className="sub">/ V.5.0426</span>
       </div>
       <nav>
@@ -1602,7 +1643,7 @@ function Hero({ onBegin }) {
           </div>
         </div>
         <div className="hero-car">
-          <CarRender code="RUINER2000 / IMP-M2K" angle="EXTERIOR / 3-4 FRONT" status="LIVE" car={window.VEHICLES.find(v => v.id === "ruiner2000")} />
+          <CarRender code="RUINER2000 / IMP-M2K" angle="EXTERIOR / 3-4 FRONT" status="LIVE" />
           <div className="hero-bubble b1">
             <span className="lbl">Sticker price</span>
             <span className="hot">$5,745,600</span>
