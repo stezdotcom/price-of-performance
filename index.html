@@ -1409,8 +1409,11 @@ function pad(n, width) {
   return String(n).padStart(width, "0");
 }
 
-/* ---------- Car image URL from GTABase ---------- */
-function vehicleImg(car) {
+/* ---------- Car image URLs ---------- */
+function vehicleImgGithub(car) {
+  return `https://raw.githubusercontent.com/MericcaN41/gta5carimages/main/images/${car.id}.png`;
+}
+function vehicleImgGtabase(car) {
   const cls = car.cls.toLowerCase().replace(/\s+/g, '-');
   const name = car.name.toLowerCase()
     .replace(/\s+/g, '-')
@@ -1422,16 +1425,26 @@ function vehicleImg(car) {
 
 /* ---------- Car Render ---------- */
 function CarRender({ code, status = "READY", angle = "3/4 FRONT", car = null }) {
-  const imgUrl = car ? vehicleImg(car) : null;
+  const githubUrl = car ? vehicleImgGithub(car) : null;
+  const gtabaseUrl = car ? vehicleImgGtabase(car) : null;
   return (
     <div className="car-render">
       <span className="tick tl"></span>
       <span className="tick tr"></span>
       <span className="tick bl"></span>
       <span className="tick br"></span>
-      {imgUrl ? (
-        <img src={imgUrl} alt={car.name} className="car-render-img"
-          onError={(e) => { e.currentTarget.style.display = "none"; }} />
+      {githubUrl ? (
+        <img src={githubUrl} alt={car.name} className="car-render-img"
+          referrerPolicy="no-referrer"
+          onError={(e) => {
+            const el = e.currentTarget;
+            if (!el.dataset.fallback) {
+              el.dataset.fallback = '1';
+              el.src = gtabaseUrl;
+            } else {
+              el.style.display = 'none';
+            }
+          }} />
       ) : (
         <div className="render-label">
           <span>[ CAR RENDER</span>
