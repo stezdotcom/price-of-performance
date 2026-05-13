@@ -69,9 +69,8 @@ body {
   box-shadow: 0 0 12px var(--accent-glow);
 }
 .topbar .brand-v-logo {
-  height: 24px; width: auto; object-fit: contain;
+  height: 28px; width: auto; object-fit: contain;
   vertical-align: middle; position: relative; top: -1px;
-  filter: drop-shadow(0 0 6px rgba(100,220,80,0.5));
 }
 .topbar .brand .sub {
   color: var(--text-2); font-weight: 500; letter-spacing: 0.06em;
@@ -122,15 +121,15 @@ h1, h2, h3 { font-family: var(--display); font-weight: 600; letter-spacing: -0.0
   overflow: hidden;
 }
 .hero-stage {
-  position: relative;
-  display: grid; place-items: center;
+  display: flex; flex-direction: column;
+  align-items: center; gap: 48px;
   width: 100%;
 }
 .hero-headline {
-  position: absolute; inset: 0;
-  display: grid; place-items: center;
+  display: flex; flex-direction: column; align-items: center;
   text-align: center;
-  pointer-events: none;
+  max-width: 760px;
+  padding: 0 24px;
   z-index: 3;
 }
 .hero-headline h1 {
@@ -150,7 +149,7 @@ h1, h2, h3 { font-family: var(--display); font-weight: 600; letter-spacing: -0.0
 .hero-headline p {
   margin-top: 28px;
   font-size: 17px; color: var(--text-1); max-width: 56ch;
-  line-height: 1.55;
+  line-height: 1.55; text-align: center;
 }
 
 .hero-car {
@@ -314,6 +313,7 @@ h1, h2, h3 { font-family: var(--display); font-weight: 600; letter-spacing: -0.0
   width: 1px;
   background: var(--line);
   position: relative;
+  z-index: 10;
 }
 .paradox-divider .vs {
   position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
@@ -343,12 +343,20 @@ h1, h2, h3 { font-family: var(--display); font-weight: 600; letter-spacing: -0.0
   padding: 0 48px 120px;
 }
 .class-toolbar {
-  display: flex; justify-content: space-between; align-items: center;
+  display: flex; flex-direction: column; align-items: flex-start; gap: 12px;
   border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);
   padding: 16px 0;
   margin-bottom: 24px;
 }
-.class-tabs { display: flex; gap: 4px; }
+.class-tabs {
+  display: flex; gap: 4px;
+  overflow-x: auto; flex-wrap: nowrap; width: 100%;
+  padding-bottom: 4px;
+  scrollbar-width: thin; scrollbar-color: var(--line-strong) transparent;
+}
+.class-tabs::-webkit-scrollbar { height: 2px; }
+.class-tabs::-webkit-scrollbar-track { background: transparent; }
+.class-tabs::-webkit-scrollbar-thumb { background: var(--line-strong); border-radius: 1px; }
 .class-tabs button {
   background: transparent; border: 1px solid var(--line);
   color: var(--text-2); cursor: pointer;
@@ -1601,7 +1609,7 @@ function TopBar({ active }) {
     <header className="topbar">
       <div className="brand">
         <span className="dot"></span>
-        <span><img src="https://www.vhv.rs/dpng/d/63-633301_gta-v-logo-hd-png-download.png" alt="V" className="brand-v-logo" referrerPolicy="no-referrer" />elocity Index</span>
+        <span><img src="gta-v-logo.png" alt="V" className="brand-v-logo" />elocity Index</span>
         <span className="sub">/ V.5.0426</span>
       </div>
       <nav>
