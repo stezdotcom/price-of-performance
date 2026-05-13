@@ -116,21 +116,28 @@ h1, h2, h3 { font-family: var(--display); font-weight: 600; letter-spacing: -0.0
   grid-template-rows: 1fr auto;
   padding: 96px 48px 48px;
   background:
-    radial-gradient(ellipse 80% 60% at 50% 60%, oklch(0.78 0.16 230 / 0.18) 0%, transparent 60%),
+    radial-gradient(ellipse 90% 55% at 50% 38%, oklch(0.78 0.16 230 / 0.28) 0%, transparent 65%),
     var(--bg-0);
   overflow: hidden;
 }
 .hero-stage {
   display: flex; flex-direction: column;
-  align-items: center; gap: 48px;
+  align-items: center;
   width: 100%;
 }
 .hero-headline {
+  position: relative;
   display: flex; flex-direction: column; align-items: center;
   text-align: center;
   max-width: 760px;
   padding: 0 24px;
   z-index: 3;
+}
+.hero-headline::before {
+  content: "";
+  position: absolute; inset: -80% -120%;
+  background: radial-gradient(ellipse at 50% 45%, oklch(0.78 0.16 230 / 0.20) 0%, transparent 60%);
+  pointer-events: none; z-index: -1;
 }
 .hero-headline h1 {
   font-size: clamp(42px, 7vw, 104px);
@@ -152,13 +159,6 @@ h1, h2, h3 { font-family: var(--display); font-weight: 600; letter-spacing: -0.0
   line-height: 1.55; text-align: center;
 }
 
-.hero-car {
-  position: relative;
-  width: min(1100px, 92vw);
-  aspect-ratio: 16/9;
-  margin-top: 64px;
-  z-index: 1;
-}
 
 .hero-cta {
   display: flex; align-items: center; justify-content: space-between;
@@ -397,28 +397,6 @@ h1, h2, h3 { font-family: var(--display); font-weight: 600; letter-spacing: -0.0
 .class-row.leader .name { color: var(--accent); }
 .class-row.leader .bar-fill { background: linear-gradient(90deg, var(--hot), oklch(0.78 0.16 100)); box-shadow: 0 0 18px var(--hot-soft); }
 
-/* ---------- Hero annotation bubbles ---------- */
-.hero-car .hero-bubble {
-  position: absolute;
-  background: var(--bg-0);
-  border: 1px solid var(--accent);
-  padding: 10px 14px;
-  font-family: var(--mono); font-size: 10px; letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--text-0);
-  box-shadow: 0 0 24px var(--accent-glow);
-  z-index: 5;
-  white-space: nowrap;
-  opacity: 0;
-  transition: opacity 600ms;
-}
-.hero.in-view .hero-car .hero-bubble { opacity: 1; }
-.hero-car .hero-bubble.b1 { top: 18%; left: -2%; transition-delay: 800ms; }
-.hero-car .hero-bubble.b2 { top: 30%; right: -2%; transition-delay: 1100ms; }
-.hero-car .hero-bubble.b3 { bottom: 28%; left: 6%; transition-delay: 1400ms; }
-.hero-car .hero-bubble .accent { color: var(--accent); }
-.hero-car .hero-bubble .hot { color: var(--hot); font-weight: 600; }
-.hero-car .hero-bubble .lbl { color: var(--text-2); display: block; margin-bottom: 4px; }
 
 /* ---------- Section 4: Discovery (Asphalt 8 inspired) ---------- */
 .discovery {
@@ -1648,21 +1626,6 @@ function Hero({ onBegin }) {
               Spending more doesn't mean you'll get a better car. Chances are, you're getting the same performance 
               that you could get if you spent half or even less of the price. Price does NOT equal performance.
             </p>
-          </div>
-        </div>
-        <div className="hero-car">
-          <CarRender code="RUINER2000 / IMP-M2K" angle="EXTERIOR / 3-4 FRONT" status="LIVE" />
-          <div className="hero-bubble b1">
-            <span className="lbl">Sticker price</span>
-            <span className="hot">$5,745,600</span>
-          </div>
-          <div className="hero-bubble b2">
-            <span className="lbl">Top speed score</span>
-            <span className="accent">81.6 / 100</span>
-          </div>
-          <div className="hero-bubble b3">
-            <span className="lbl">Same speed for</span>
-            <span className="hot">$95K</span>
           </div>
         </div>
       </div>
