@@ -247,6 +247,11 @@ h1, h2, h3 { font-family: var(--display); font-weight: 600; letter-spacing: -0.0
 .car-render .tick.tr { top: 10px; right: 10px; border-left: 0; border-bottom: 0; }
 .car-render .tick.bl { bottom: 38px; left: 10px; border-right: 0; border-top: 0; }
 .car-render .tick.br { bottom: 38px; right: 10px; border-left: 0; border-top: 0; }
+.car-render-img {
+  width: 100%; height: 100%;
+  object-fit: contain; object-position: center;
+  padding: 8px 16px; grid-row: 1;
+}
 
 /* ---------- Generic section header ---------- */
 .section-head {
@@ -1380,7 +1385,8 @@ window.VEHICLES = [
   {id:"mule",name:"Mule",maker:"Maibatsu",cls:"Commercial",price:27000,speed:53.7,accel:27.5,braking:8.3,handling:45.5},
   {id:"haulercustom",name:"Hauler Custom",maker:"JoBuilt",cls:"Commercial",price:1400000,speed:69.8,accel:80.0,braking:28.3,handling:59.1},
 ];
-window.CLASSES = ["Commercial", "Compacts", "Coupes", "Cycles", "Emergency", "Industrial", "Military", "Motorcycles", "Muscle", "Off-Road", "Open Wheel", "Planes", "Remote Control", "SUVs", "Sedans", "Service", "Sports", "Sports Classics", "Super", "Utility", "Vans"];
+window.CLASSES = ["Commercial", "Compacts", "Coupes", "Cycles", "Emergency", "Industrial", "Military", "Motorcycles", "Muscle", "Off-Road", "Open Wheel", "Remote Control", "SUVs", "Sedans", "Service", "Sports", "Sports Classics", "Super", "Utility", "Vans"];
+window.VEHICLES = window.VEHICLES.filter(v => v.cls !== "Planes");
 
   </script>
   <script type="text/babel" data-presets="react">
@@ -1403,20 +1409,37 @@ function pad(n, width) {
   return String(n).padStart(width, "0");
 }
 
-/* ---------- Car Render placeholder ---------- */
-function CarRender({ code, status = "READY", angle = "3/4 FRONT" }) {
+/* ---------- Car image URL from GTABase ---------- */
+function vehicleImg(car) {
+  const cls = car.cls.toLowerCase().replace(/\s+/g, '-');
+  const name = car.name.toLowerCase()
+    .replace(/\s+/g, '-')
+    .replace(/[()]/g, '')
+    .replace(/-+/g, '-')
+    .replace(/-+$/, '');
+  return `https://www.gtabase.com/images/jch-optimize/ng/images_gta-5_vehicles_${cls}_main_${name}.webp`;
+}
+
+/* ---------- Car Render ---------- */
+function CarRender({ code, status = "READY", angle = "3/4 FRONT", car = null }) {
+  const imgUrl = car ? vehicleImg(car) : null;
   return (
     <div className="car-render">
       <span className="tick tl"></span>
       <span className="tick tr"></span>
       <span className="tick bl"></span>
       <span className="tick br"></span>
-      <div className="render-label">
-        <span>[ CAR RENDER</span>
-        <span className="br">//</span>
-        <span>{code}</span>
-        <span>]</span>
-      </div>
+      {imgUrl ? (
+        <img src={imgUrl} alt={car.name} className="car-render-img"
+          onError={(e) => { e.currentTarget.style.display = "none"; }} />
+      ) : (
+        <div className="render-label">
+          <span>[ CAR RENDER</span>
+          <span className="br">//</span>
+          <span>{code}</span>
+          <span>]</span>
+        </div>
+      )}
       <div className="render-meta">
         <span>{angle}</span>
         <span className="ok">● {status}</span>
@@ -1566,7 +1589,7 @@ function Hero({ onBegin }) {
           </div>
         </div>
         <div className="hero-car">
-          <CarRender code="RUINER2000 / IMP-M2K" angle="EXTERIOR / 3-4 FRONT" status="LIVE" />
+          <CarRender code="RUINER2000 / IMP-M2K" angle="EXTERIOR / 3-4 FRONT" status="LIVE" car={window.VEHICLES.find(v => v.id === "ruiner2000")} />
           <div className="hero-bubble b1">
             <span className="lbl">Sticker price</span>
             <span className="hot">$5,745,600</span>
@@ -1637,7 +1660,7 @@ function ParadoxCard({ car, accentTied }) {
         <div className="price">{fmtPriceFull(car.price)}</div>
       </div>
       <div className="render">
-        <CarRender code={car.id.toUpperCase()} status="DB-MATCH" />
+        <CarRender code={car.id.toUpperCase()} status="DB-MATCH" car={car} />
       </div>
       <div className="stats">
         <ParadoxBar label="Top Speed"  value={car.speed}    tied={accentTied.includes("speed")} delay={0}   />
@@ -1913,7 +1936,7 @@ function Discovery() {
               <div className="cp-stage">
                 {selected ? (
                   <div className="cp-render" key={selected.id}>
-                    <CarRender code={selected.id.toUpperCase()} status="LIVE MATCH" angle="HERO / 3-4 FRONT" />
+                    <CarRender code={selected.id.toUpperCase()} status="LIVE MATCH" angle="HERO / 3-4 FRONT" car={selected} />
                     <div className="cp-bubble top-left">
                       <span className="accent">SPD</span>{selected.speed}
                     </div>
@@ -2018,7 +2041,7 @@ function AltCard({ car, idx, selected, onClick }) {
       onClick={onClick}
     >
       <div className="alt-render">
-        <CarRender code={car.id.toUpperCase()} status="MATCH" angle="" />
+        <CarRender code={car.id.toUpperCase()} status="MATCH" angle="" car={car} />
       </div>
       <div className="alt-name">{car.name}</div>
       <div className="alt-row-meta">
